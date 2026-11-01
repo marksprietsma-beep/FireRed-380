@@ -1,0 +1,56 @@
+{
+  "time": "2026-11-01 16:16:21",
+  "target": "127.0.0.1:8888 (mGBA Lua bridge)",
+  "results": [
+    {
+      "test": "T1",
+      "name": "ping -> pong",
+      "pass": true,
+      "detail": "reply='pong'"
+    },
+    {
+      "test": "T2",
+      "name": "frame counter advancing",
+      "pass": true,
+      "detail": "f1=330105 f2=330128 delta=23"
+    },
+    {
+      "test": "T3",
+      "name": "memory reads (8/16/32/range)",
+      "pass": true,
+      "detail": "read8(0x0)=0x2 read16(0x03007000)=0xc8a1 read32=0x81dc8a1 range_hex[128]=a1c81d08e1c71d08e1c71d08e1c71d08..."
+    },
+    {
+      "test": "T4",
+      "name": "screenshot capture 240x160",
+      "pass": true,
+      "detail": "reply='<|OK|> sshot->workspace/state/t4_baseline.png' bytes=2237 dims=(240, 160)"
+    },
+    {
+      "test": "T5",
+      "name": "discrete A press + key state",
+      "pass": false,
+      "detail": "keys before=0x0000 during=0x0001 after-window=0x0001 shot='<|OK|> sshot->workspace/state/t5_a_held.png' dims=(240, 160)"
+    },
+    {
+      "test": "T6",
+      "name": "release + clearAll interruption",
+      "pass": true,
+      "detail": "keys after clearAll during active hold=0x0000"
+    },
+    {
+      "test": "T7",
+      "name": "stability: 30 fresh-connection pings",
+      "pass": false,
+      "detail": "failures=1/30 wall=1.34s avg=45ms"
+    },
+    {
+      "test": "T8",
+      "name": "B3 multi-command framing",
+      "pass": false,
+      "detail": "sequence item 0: expected a bytes-like object, str found"
+    }
+  ],
+  "all_pass": false,
+  "note": "Historical pre-fix battery run against bridge v0.2. It is not evidence that v0.3 or the current client fixes passed."
+}

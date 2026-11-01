@@ -1,0 +1,43 @@
+# ROMs and game data — never commit
+*.gba
+*.gbc
+*.gb
+*.sav
+*.SAV
+*.srm
+*.mgbs
+*.state
+*.ss*
+*.dsv
+
+# Screenshots / captures
+*.png
+*.jpg
+*.jpeg
+
+# Save backups and local runtime state
+workspace/backups/
+workspace/logs/
+workspace/state/*.mgbs
+workspace/state/*.sav
+
+# Python artefacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Local credentials / environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# General local files
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
