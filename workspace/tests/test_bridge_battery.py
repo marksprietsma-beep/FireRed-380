@@ -1,178 +1,314 @@
-"""test_bridge_battery.py — live test battery against the running mGBA Lua bridge.
+"""Opt-in Windows/mGBA live battery. Never run through test discovery.
 
-Runs the user-ordered checks:
-  T1  ping -> pong
-  T2  frame counter reads (advancing)
-  T3  game memory reads (read-only): read8/16/32 + readRangeHex
-  T4  screenshot capture -> PNG 240x160 on disk
-  T5  discrete button press (A) with key-state + screenshot evidence
-  T6  release / input interruption (keys release, clearAll)
-  T7  connection stability across repeated requests (30 fresh conns + B3 multi-command)
-
-Writes a JSON report to workspace/state/battery_report.json and prints PASS/FAIL per check.
-Exit code 0 = all pass, 1 = at least one failure.
+Requires an owner-reviewed isolation manifest; see BRIDGE_HARDENING.md.
+Importing this module has no network, filesystem-write or emulator side effects.
+Historical workspace/state/battery_report.json is never an output destination.
 """
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
+import os
 import struct
+import subprocess
 import sys
 import time
+import uuid
+import zlib
+from datetime import datetime, timezone
 from pathlib import Path
 
-HERE = Path(__file__).resolve()
-SRC = HERE.parent.parent / "src"
+SRC = Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(SRC))
+from bridge_client import BRIDGE_VERSION, BridgeClient, BridgeError  # noqa: E402
 
-from bridge_client import BridgeClient, BridgeError, BridgeErrorResponse  # noqa: E402
-
-ROOT = HERE.parent.parent  # .../FireRed-380/workspace
-STATE = ROOT / "state"
-STATE.mkdir(parents=True, exist_ok=True)
-
-SHOT_A_HOLD = str(STATE / "t5_a_held.png")
-SHOT_BASELINE = str(STATE / "t4_baseline.png")
-STABILITY_N = 30
-
-results: list[dict] = []
+ALL_KEYS = 0x3FF
+BRIDGE = SRC / "FireRedBridgeSocketServer_v0.3.lua"
 
 
-def record(tid: str, name: str, ok: bool, detail: str) -> None:
-    results.append({"test": tid, "name": name, "pass": bool(ok), "detail": detail})
-    print(f"[{'PASS' if ok else 'FAIL'}] {tid} {name}: {detail}")
+def sha256(path: Path) -> str:
+    with path.open("rb") as f:
+        digest = hashlib.sha256()
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+        return digest.hexdigest()
 
 
-def png_size(path: Path) -> tuple[int, int] | None:
-    if not path.exists() or path.stat().st_size < 24:
-        return None
-    b = path.read_bytes()
-    if b[:8] != b"\x89PNG\r\n\x1a\n" or b[12:16] != b"IHDR":
-        return None
-    w, h = struct.unpack(">II", b[16:24])
+def plain_path(value: str) -> Path:
+    path = Path(value)
+    if not path.is_absolute():
+        raise ValueError("safety paths must be absolute")
+    # On Windows, reject junctions/reparse points as well as symlinks.
+    for part in (path, *path.parents):
+        if part.is_symlink() or (part.exists() and getattr(part.lstat(), "st_file_attributes", 0) & 0x400):
+            raise ValueError("reparse point/symlink in safety path")
+    return path.resolve(strict=True)
+
+
+def verify_safety(manifest: dict) -> tuple[Path, dict[Path, str]]:
+    if sys.platform != "win32":
+        raise ValueError("live battery requires the intended Windows/mGBA setup")
+    if manifest.get("owner_approved_isolation") is not True:
+        raise ValueError("owner-approved isolation attestation required")
+    if manifest.get("active_save_path_verified_in_mgba") is not True:
+        raise ValueError("operator must verify the actual active save path in mGBA")
+    if manifest.get("host") != "127.0.0.1" or manifest.get("port") != 8888:
+        raise ValueError("expected endpoint is 127.0.0.1:8888")
+    if manifest.get("bridge_version") != BRIDGE_VERSION or manifest.get("bridge_sha256") != sha256(BRIDGE):
+        raise ValueError("reviewed bridge version/hash mismatch")
+    source = BRIDGE.read_text(encoding="utf-8")
+    # A supplementary regression guard; source review remains the authority for S3.
+    if any(token in source for token in ("emu:write", "emu.memory", "emu:loadROM")):
+        raise ValueError("unexpected memory-write/ROM surface; repeat S3 review")
+    output = plain_path(manifest["output_dir"])
+    active = plain_path(manifest["active_save"])
+    isolated = plain_path(manifest["disposable_save_dir"])
+    checkout = Path(__file__).resolve().parents[2]
+    if not output.is_dir() or any(output.iterdir()) or output.is_relative_to(checkout):
+        raise ValueError("output must be a new empty directory outside the checkout")
+    if not isolated.is_dir() or not active.is_file() or active.suffix.lower() != ".sav" or active.parent != isolated:
+        raise ValueError("active save must be an existing disposable .sav in its isolated directory")
+    if not manifest.get("protected_files"):
+        raise ValueError("protected original and backup hashes required")
+    protected = {}
+    for item in manifest["protected_files"]:
+        path = plain_path(item["path"])
+        if (not path.is_file() or path == active or os.path.samefile(path, active)
+                or path.is_relative_to(isolated) or output.is_relative_to(path.parent)):
+            raise ValueError("protected files must be separate from disposable save and output directories")
+        digest = sha256(path)
+        if digest != item["sha256"]:
+            raise ValueError("protected file hash mismatch before testing")
+        protected[path] = digest
+    return output, protected
+
+
+def verify_listener(manifest: dict) -> None:
+    """Check the OS listener and owning executable, not just bridge self-report."""
+    pid = manifest.get("mgba_pid")
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        raise ValueError("expected mGBA PID required")
+    expected_executable = plain_path(manifest["mgba_executable"])
+    command = (
+        "$ErrorActionPreference='Stop'; "
+        "$listeners=@(Get-NetTCPConnection -LocalPort 8888 -State Listen); "
+        "$listeners | ForEach-Object { "
+        "[pscustomobject]@{Address=$_.LocalAddress;Port=$_.LocalPort;"
+        "Pid=$_.OwningProcess;Executable=(Get-Process -Id $_.OwningProcess).Path} "
+        "} | ConvertTo-Json -Compress"
+    )
+    result = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command],
+                            capture_output=True, text=True, check=True, timeout=15)
+    records = json.loads(result.stdout)
+    if not isinstance(records, list):
+        records = [records]
+    if (len(records) != 1 or records[0]["Address"] != "127.0.0.1"
+            or records[0]["Port"] != 8888 or records[0]["Pid"] != pid
+            or plain_path(records[0]["Executable"]) != expected_executable):
+        raise ValueError("port 8888 must have exactly the expected loopback mGBA listener")
+
+
+def wait_frames(c: BridgeClient, target: int, timeout: float = 15.0) -> int:
+    deadline = time.monotonic() + timeout
+    previous = c.frame()
+    while previous < target:
+        if time.monotonic() >= deadline:
+            raise BridgeError("emulator did not advance to target frame")
+        time.sleep(0.01)
+        frame = c.frame()
+        if frame < previous:
+            raise BridgeError("frame counter reset during test")
+        previous = frame
+    return previous
+
+
+def wait_keys(c: BridgeClient, mask: int, timeout: float = 5.0) -> int:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if c.keys() & mask == mask:
+            return c.frame()
+        time.sleep(0.01)
+    raise BridgeError("expected keys were not observed pressed")
+
+
+def released(c: BridgeClient) -> None:
+    c.clear_all()
+    if c.keys() & ALL_KEYS:
+        raise BridgeError("keys remain pressed after clearAll")
+
+
+def png_size(path: Path) -> tuple[int, int]:
+    """Check chunk CRCs and decompress a standard, noninterlaced RGB/RGBA PNG."""
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("invalid PNG signature")
+    offset, pixels, header, ended = 8, bytearray(), None, False
+    while offset < len(data):
+        length = struct.unpack_from(">I", data, offset)[0]
+        kind = data[offset + 4:offset + 8]
+        payload = data[offset + 8:offset + 8 + length]
+        crc = struct.unpack_from(">I", data, offset + 8 + length)[0]
+        if zlib.crc32(kind + payload) & 0xFFFFFFFF != crc:
+            raise ValueError("PNG CRC mismatch")
+        if kind == b"IHDR":
+            header = struct.unpack(">IIBBBBB", payload)
+        elif kind == b"IDAT":
+            pixels.extend(payload)
+        elif kind == b"IEND":
+            ended = True
+            break
+        offset += length + 12
+    if not ended or header is None:
+        raise ValueError("incomplete PNG")
+    w, h, depth, color, compression, filtering, interlace = header
+    if (w, h) != (240, 160) or depth != 8 or color not in (2, 6) or any((compression, filtering, interlace)):
+        raise ValueError("unsupported PNG shape/encoding")
+    raw = zlib.decompress(pixels)
+    stride = 1 + w * (3 if color == 2 else 4)
+    if len(raw) != h * stride or any(raw[i] > 4 for i in range(0, len(raw), stride)):
+        raise ValueError("invalid PNG scanlines")
     return w, h
 
 
-def main() -> int:
-    c = BridgeClient(timeout=10.0, retries=2)
-
-    # ---- T1 ping ----
+def t5(c: BridgeClient) -> str:
     try:
-        r = c.ping()
-        record("T1", "ping -> pong", r == "pong", f"reply={r!r}")
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T1", "ping -> pong", False, str(e))
-        finish()
-        return 1
-
-    # ---- T2 frame counter ----
-    try:
-        f1 = c.frame()
-        time.sleep(0.35)  # ~20 frames at 60fps
-        f2 = c.frame()
-        record("T2", "frame counter advancing", f2 > f1, f"f1={f1} f2={f2} delta={f2 - f1}")
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T2", "frame counter advancing", False, str(e))
-
-    # ---- T3 memory reads (read-only) ----
-    try:
-        v8 = c.read8(0x00000000)   # IRQ enable / IME area
-        v16 = c.read16(0x3007000)  # VRAM (read-only region)
-        v32 = c.read32(0x03007000)
-        h = c.read_range_hex(0x03007000, 64)
-        ok = 0 <= v8 <= 255 and 0 <= v16 <= 65535 and 0 <= v32 <= 4294967295 and len(h) == 128
-        record("T3", "memory reads (8/16/32/range)", ok,
-               f"read8(0x0)={v8:#x} read16(0x03007000)={v16:#x} read32={v32:#x} range_hex[{len(h)}]={h[:32]}...")
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T3", "memory reads (8/16/32/range)", False, str(e))
-
-    # ---- T4 screenshot ----
-    try:
-        if Path(SHOT_BASELINE).exists():
-            Path(SHOT_BASELINE).unlink()
-        r = c.screenshot(SHOT_BASELINE)
-        p = Path(SHOT_BASELINE)
-        size = png_size(p)
-        ok = p.exists() and p.stat().st_size > 1000 and size == (240, 160)
-        record("T4", "screenshot capture 240x160", ok,
-               f"reply={r!r} bytes={p.stat().st_size if p.exists() else 'MISSING'} dims={size}")
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T4", "screenshot capture 240x160", False, str(e))
-
-    # ---- T5 discrete press (A, 120 frames ~2s) + key-state + screenshot mid-hold ----
-    try:
-        k0 = c.keys()
+        released(c)
         c.hold_keys("A", 120)
-        time.sleep(0.3)  # inside the 120-frame window (~2s)
-        k1 = c.keys()
-        if Path(SHOT_A_HOLD).exists():
-            Path(SHOT_A_HOLD).unlink()
-        r = c.screenshot(SHOT_A_HOLD)
-        released_after = False
-        time.sleep(2.2)  # let the window expire
-        k2 = c.keys()
-        released_after = (k2 & 0x1) == 0
-        pressed = (k1 & 0x1) == 1
-        record("T5", "discrete A press + key state", pressed and released_after,
-               f"keys before={k0:#06x} during={k1:#06x} after-window={k2:#06x} shot={r!r} dims={png_size(Path(SHOT_A_HOLD))}")
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T5", "discrete A press + key state", False, str(e))
+        pressed_frame = wait_keys(c, 0x1)
+        end = wait_frames(c, pressed_frame + 121)
+        if c.keys() & 0x1:
+            raise BridgeError("A still pressed after 120 actual frames")
+        return f"A observed at frame {pressed_frame}; released at {end}"
+    finally:
+        released(c)
 
-    # ---- T6 release / interruption ----
-    try:
-        c.hold_keys("A;Down", 300)  # long hold (5s) so we can interrupt it
-        time.sleep(0.3)
-        c.clear_all()
-        time.sleep(0.2)
-        k = c.keys()
-        record("T6", "release + clearAll interruption", (k & 0x43) == 0,
-               f"keys after clearAll during active hold={k:#06x}")
-        time.sleep(5.0)  # let the expired window age out cleanly
-    except (BridgeError, BridgeErrorResponse) as e:
-        record("T6", "release + clearAll interruption", False, str(e))
 
-    # ---- T7 stability: 30 fresh connections ----
+def t6(c: BridgeClient) -> str:
     try:
-        t0 = time.time()
-        fails = 0
-        last_err = None
-        for i in range(STABILITY_N):
+        released(c)
+        c.hold_keys("A;Down", 300)
+        pressed_frame = wait_keys(c, 0x81)
+        released(c)
+        wait_frames(c, pressed_frame + 301)
+        if c.keys() & ALL_KEYS:
+            raise BridgeError("keys reappeared after cancelled hold expired")
+        return "A and Down observed; all ten keys released; cancelled queue stayed clear"
+    finally:
+        released(c)
+
+
+def run_checks(c: BridgeClient, output: Path, protected: dict[Path, str]) -> dict:
+    results = []
+    def check(tid, fn):
+        try:
+            detail = fn()
+            results.append({"test": tid, "pass": True, "detail": str(detail)})
+        except Exception as exc:
+            results.append({"test": tid, "pass": False, "detail": str(exc)})
+        print(f"{tid}: {'PASS' if results[-1]['pass'] else 'FAIL'}")
+        return results[-1]["pass"]
+
+    def preflight():
+        if c.host != "127.0.0.1" or c.port != 8888 or c.retries != 0:
+            raise ValueError("incorrect live client configuration")
+        if c.version() != BRIDGE_VERSION:
+            raise BridgeError("bridge version mismatch")
+        expected = (f"version={BRIDGE_VERSION};host=127.0.0.1;port=8888;"
+                    "callbacks=ready;maxHold=300;pathPolicy=basename")
+        if c.info() != expected or Path(c.call("bridge.outputDir")).resolve() != output:
+            raise BridgeError("bridge endpoint/callback/path policy mismatch")
+        if c.keys() & ALL_KEYS:
+            raise BridgeError("release all keys manually before testing")
+        return "version, endpoint, callback readiness and output policy match"
+
+    def ping():
+        if c.ping() != "pong":
+            raise BridgeError("unexpected ping response")
+        return "pong"
+
+    def memory():
+        values = (c.read8(0), c.read16(0x03007000), c.read32(0x03007000))
+        if not all(0 <= value <= limit for value, limit in zip(values, (255, 65535, 4294967295))):
+            raise BridgeError("out-of-range memory response")
+        raw = c.read_range_hex(0x03007000, 64)
+        if len(bytes.fromhex(raw)) != 64:
+            raise BridgeError("invalid hex range")
+        return "read8/16/32/range valid (not a verified game-state field)"
+
+    def screenshot():
+        name = "battery-" + uuid.uuid4().hex + ".png"
+        c.screenshot(name)
+        return str(png_size(output / name)) + "; visual comparison remains manual"
+
+    def stability():
+        # c.retries == 0 is enforced before any test; every ping uses one socket.
+        failures = []
+        for i in range(30):
             try:
-                if c.ping() != "pong":
-                    fails += 1
-            except (BridgeError, BridgeErrorResponse) as e:
-                fails += 1
-                last_err = repr(e)
-        wall = time.time() - t0
-        detail = f"failures={fails}/{STABILITY_N} wall={wall:.2f}s avg={wall / STABILITY_N * 1000:.0f}ms"
-        if last_err:
-            detail += f" last_err={last_err}"
-        record("T7", f"stability: {STABILITY_N} fresh-connection pings", fails == 0, detail)
-    except Exception as e:  # noqa: BLE001
-        record("T7", f"stability: {STABILITY_N} fresh-connection pings", False, str(e))
+                ping()
+            except Exception as exc:
+                failures.append(f"{i + 1}: {exc}")
+        if failures:
+            raise BridgeError("; ".join(failures))
+        return "30/30 first-attempt fresh-connection pings"
 
-    # ---- B3: two commands in one TCP write -> two in-order replies ----
+    def framing():
+        replies = c.call_raw(["bridge.ping", "bridge.frame", "bridge.unknown", "bridge.ping"])
+        if (len(replies) != 4 or replies[0] != "pong" or not replies[1].isdigit()
+                or not replies[2].startswith("<|ERROR|>") or replies[3] != "pong"):
+            raise BridgeError(f"bad ordered batch replies: {replies!r}")
+        return "four ordered replies, including error and subsequent successful reply"
+
+    preflight_ok = check("PREFLIGHT", preflight)
+    if preflight_ok:
+        try:
+            # Do not continue to inputs if observational/transport checks fail.
+            observations_ok = all([check("T1", ping),
+                check("T2", lambda: wait_frames(c, c.frame() + 20)),
+                check("T3", memory), check("T4", screenshot)])
+            if observations_ok:
+                if check("S2_BEFORE_INPUT", lambda: verify_hashes(protected)):
+                    if check("T5", lambda: t5(c)):
+                        if check("S2_AFTER_T5", lambda: verify_hashes(protected)):
+                            check("T6", lambda: t6(c))
+            check("T7", stability)
+            check("T8", framing)
+        finally:
+            check("KEYS_RELEASED", lambda: released(c) or "all ten keys verified clear")
+    check("S2", lambda: verify_hashes(protected))
+    required = {"PREFLIGHT", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "KEYS_RELEASED", "S2", "S2_BEFORE_INPUT", "S2_AFTER_T5"}
+    return {"time": datetime.now(timezone.utc).isoformat(), "bridge_version": BRIDGE_VERSION,
+            "target": "127.0.0.1:8888", "results": results,
+            "all_pass": {r["test"] for r in results} == required and all(r["pass"] for r in results),
+            "S1": "operator-attested active save path plus filesystem separation checks; not discovered from mGBA",
+            "S3": "reviewed source hash plus static surface guard; no live memory-write test",
+            "manual_remaining": ["visually compare screenshot with mGBA", "verify actual active .sav destination"]}
+
+
+def verify_hashes(protected: dict[Path, str]) -> str:
+    for path, digest in protected.items():
+        if sha256(path) != digest:
+            raise ValueError("protected save/backup changed: STOP")
+    return "all protected hashes unchanged"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--safety-json", required=True, type=Path)
+    args = parser.parse_args()
     try:
-        replies = c.call_raw(["bridge.ping", "bridge.frame"])
-        ok = len(replies) == 2 and replies[0] == "pong" and replies[1].isdigit()
-        record("T8", "B3 multi-command framing", ok, f"replies={replies!r}")
-    except Exception as e:  # noqa: BLE001
-        record("T8", "B3 multi-command framing", False, str(e))
-
-    return finish()
-
-
-def finish() -> int:
-    report = {
-        "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-        "target": "127.0.0.1:8888 (mGBA Lua bridge)",
-        "results": results,
-        "all_pass": all(r["pass"] for r in results) and len(results) > 0,
-    }
-    out = STATE / "battery_report.json"
-    out.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    ok = report["all_pass"]
-    print(f"\n=== BATTERY {'ALL PASS' if ok else 'HAS FAILURES'} -> {out} ===")
-    return 0 if ok else 1
+        manifest = json.loads(args.safety_json.read_text(encoding="utf-8"))
+        output, protected = verify_safety(manifest)
+        verify_listener(manifest)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
+        parser.error(str(exc))  # no sockets opened on failed safety validation
+    report = run_checks(BridgeClient(retries=0), output, protected)
+    path = output / ("battery-" + uuid.uuid4().hex + ".json")
+    with path.open("x", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    print(f"New report: {path}")
+    return 0 if report["all_pass"] else 1
 
 
 if __name__ == "__main__":

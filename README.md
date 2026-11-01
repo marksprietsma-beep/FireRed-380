@@ -2,6 +2,11 @@
 
 A Windows-first, supervised Pokémon FireRed agent project. The long-term objective is to register the required 380 National Pokédex species in the primary FireRed save. The project is designed around verified observations, bounded actions, human approval and careful save-file protection.
 
+Task 2 adds a **0.3.1 hardening candidate** in the existing v0.3 source file and an
+offline mock suite. See [the hardening runbook](workspace/docs/BRIDGE_HARDENING.md).
+It has not passed live emulator validation; the checkpoint history below remains
+historical evidence, not current live readiness.
+
 ## Current state
 
 - Phase 0 (project and reuse audit): complete.

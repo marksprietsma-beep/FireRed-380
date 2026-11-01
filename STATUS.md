@@ -4,6 +4,18 @@
 **Repository:** public GitHub repository; source and documentation only  
 **Project:** supervised Pokémon FireRed agent
 
+## Task 2 hardening candidate (2026-11-01)
+
+The existing v0.3 file now identifies as **0.3.1**. Reliability fixes and an offline
+mock suite are implemented on `codex/bridge-hardening`; **35 Python tests including
+18 Lua scenarios pass**, with no failures/errors/skips. No live mGBA test was run.
+The historical v0.2 report remains unchanged. Save isolation remains an external
+blocker. The historical implementation table below describes the imported checkpoint.
+
+See `workspace/docs/BRIDGE_HARDENING.md` for compatibility changes, pinned 0.10.5 API
+evidence, remaining limitations and exact Windows verification instructions.
+Phase 2 is not implemented or authorized by this work; await review and approval.
+
 ## Current state
 
 | Area | Status | Evidence |
