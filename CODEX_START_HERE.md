@@ -1,3 +1,10 @@
+> Current hand-off: the owner subsequently authorised full offline upstream
+> integration and the explicit Squirrels-only owner testing exception. Read the
+> current README, STATUS, RESUME and UPSTREAM_INTEGRATION first. The audit-only
+> instructions below are historical; they do not undo that authorisation. No
+> emulator launch, game-file access in this cloud session, unattended gameplay or
+> PR merge is authorised. Protected mode remains the default.
+
 # Codex hand-off
 
 This file is the starting brief for a new Codex session.

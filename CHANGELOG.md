@@ -1,3 +1,20 @@
+# Full application integration — 2026-11-01
+
+- Integrated pinned upstream Python readers/API, Node agent, prompts, persistent
+  sessions and dashboard with CC BY-NC 4.0 attribution and per-file provenance.
+- Replaced upstream emulator transport with the existing hardened 0.3.1 client;
+  removed HTTP fallback, port scanning, mutation retries and competing Lua bridge.
+- Added local Ollama/OpenAI-compatible provider, conservative local pathfinding,
+  explicit supervision, loopback-only dashboard serving and startup scripts.
+- Added explicit Squirrels-only owner testing mode; protected mode is unchanged
+  by default. Exact ROM MD5/SHA-256 and target paths are required; S1/S2 are waived,
+  never passed; T1–T8 and S3 remain mandatory.
+- Removed automatic backup generation/pruning and hosted code/file uploads.
+- Added offline reader/API/provider/dashboard/session/owner-policy tests and
+  dependency lockfiles. Historical v0.2 report remains byte-for-byte unchanged.
+- No emulator launch, local-computer access or game-file modification; live
+  Windows/model/ROM compatibility remains unverified. No merge authorised.
+
 # CHANGELOG
 
 Chronological. Newest first. Every meaningful action is recorded here.
