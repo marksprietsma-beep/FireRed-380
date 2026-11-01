@@ -1,0 +1,294 @@
+{
+  "repository": "https://github.com/Clad3815/gpt-play-pokemon-firered",
+  "commit": "9619b101d607ee79b68e1274174ac3b6eeb6ff06",
+  "files": [
+    {
+      "path": "firered_bridge/__init__.py",
+      "upstream_sha256": "2d6a63c6fde2d25976b797feefbd102f729dcd2fa46f1b858e1e9ab271ace210"
+    },
+    {
+      "path": "firered_bridge/config.py",
+      "upstream_sha256": "ee22311dcfaf70cb7b6b3608b3e11469444cea8e5241cbd12f14e7efce2d39c9"
+    },
+    {
+      "path": "firered_bridge/constants/__init__.py",
+      "upstream_sha256": "76bebf5f56759dc7c2b8304585437fdac0eef7a2b02d3b8bdb67a729d91a0674"
+    },
+    {
+      "path": "firered_bridge/constants/addresses.py",
+      "upstream_sha256": "41d87f91fcea7ef1566d6d1858fdaa0a70b7e302b7ba75241ca0fe1e95f9d6a8"
+    },
+    {
+      "path": "firered_bridge/constants/behaviors.py",
+      "upstream_sha256": "529e6132937fbc48f19431a0ec914327049497e8433943757410493bdfd2854b"
+    },
+    {
+      "path": "firered_bridge/constants/tiles.py",
+      "upstream_sha256": "c1676f27055255793a76a2b3d625edfc81d170a2e3312e6d442b488e4317bb60"
+    },
+    {
+      "path": "firered_bridge/fog_of_war.py",
+      "upstream_sha256": "e28bf079d4b7d89f986eee53cfa4172311988399fa07e766d4091fbef0861cb5"
+    },
+    {
+      "path": "firered_bridge/game_data.py",
+      "upstream_sha256": "b097e027e14b208499b7b838b4f81174935dedf0c4daf8800f296084a4f9940b"
+    },
+    {
+      "path": "firered_bridge/game_state.py",
+      "upstream_sha256": "474a1774bb0237d39189fecb30f8371d9b417f1213b9e9424a0bfd9a6aeb3045"
+    },
+    {
+      "path": "firered_bridge/memory/__init__.py",
+      "upstream_sha256": "a5cc14f44bdfc8d09ca72df1a6f793d7231c8a62aadd1d9735d47ae3ec40ebb7"
+    },
+    {
+      "path": "firered_bridge/memory/control.py",
+      "upstream_sha256": "0abe048f9440cee0555da88cb0c4dcd3d161b42e0b2c29bc57cf34712e83b943"
+    },
+    {
+      "path": "firered_bridge/memory/mgba.py",
+      "upstream_sha256": "f11ed69914d09473a06233baba3884bf50fcd0d6c144ee1e35572881a20a050d"
+    },
+    {
+      "path": "firered_bridge/memory/reader.py",
+      "upstream_sha256": "c941ef34211b29a16cb7544d3990fbb7f4288aadd0e9d7b2d5396e0517527512"
+    },
+    {
+      "path": "firered_bridge/memory/symbols.py",
+      "upstream_sha256": "713d51706e1090740006827d4eeff66d959dc2bb8dc7dcdd3a21a90d89da1c95"
+    },
+    {
+      "path": "firered_bridge/mgba_client.py",
+      "upstream_sha256": "cf270133cf96686e81877f9fd75e7edcb63b0a98226a5be37eb4a3d22e0eb00e"
+    },
+    {
+      "path": "firered_bridge/player/__init__.py",
+      "upstream_sha256": "bb5c0a0c690ff90385d005376dc167e7f02940cbb28b1840ee0963b561bcc6e5"
+    },
+    {
+      "path": "firered_bridge/player/bag.py",
+      "upstream_sha256": "9b50efc4fa15981f0183c740cfefcd96185f6a6c4d9bbc115aecc585bd6547ef"
+    },
+    {
+      "path": "firered_bridge/player/party.py",
+      "upstream_sha256": "3797133662e0a9d3de3c5863743dddd98b0f52a9e5f3477c1190747d440222b9"
+    },
+    {
+      "path": "firered_bridge/player/pc.py",
+      "upstream_sha256": "6a341633a2e62d1199edfceeaff04bf473b32eb45cdcf87a05988b5d8b3f107e"
+    },
+    {
+      "path": "firered_bridge/player/save.py",
+      "upstream_sha256": "777bb225b9ab410a736e953d2348823d1069cb3a8a0e4f69b24d1b42459d3f85"
+    },
+    {
+      "path": "firered_bridge/player/snapshot.py",
+      "upstream_sha256": "e53667d5c12ce9315f1c1b508255124d3aad05e2e116ff242460a99c3114156c"
+    },
+    {
+      "path": "firered_bridge/state/__init__.py",
+      "upstream_sha256": "489d191fed7e269ed9c4837f56af142ac051499f9945ce611f340a445a188d7d"
+    },
+    {
+      "path": "firered_bridge/state/builders.py",
+      "upstream_sha256": "b9e05d3550780e745385403b18894fd3aa742d85c6e03c5454597a171aa2423e"
+    },
+    {
+      "path": "firered_bridge/text/__init__.py",
+      "upstream_sha256": "15055d560ed7725d38c345335562f7d4623eea2b5e7aa13c8fabe368df8cda65"
+    },
+    {
+      "path": "firered_bridge/text/encoding.py",
+      "upstream_sha256": "351ea1252d4136c5eb0e9a52b6312c12399a2e2efcd8e4d1724f36bc49e3ef2f"
+    },
+    {
+      "path": "firered_bridge/text/text_printer.py",
+      "upstream_sha256": "cd52a6ffc2d34e60c6baee764b6810d7c5208cd12f61fc19604f7d96e5ac1862"
+    },
+    {
+      "path": "firered_bridge/ui/__init__.py",
+      "upstream_sha256": "5afd75c4ce2580742a75f6a7bd47bd83b1a9b00726472543d4e2f67bbda5b965"
+    },
+    {
+      "path": "firered_bridge/ui/battle.py",
+      "upstream_sha256": "dfc2f47a72bb38774da2b217d145473d60f2a2a0b747c6dde5b84215a2204066"
+    },
+    {
+      "path": "firered_bridge/ui/dialog.py",
+      "upstream_sha256": "1fabca8f8fa15481531ff6eed84bdd8f32c4451f56579f8028d71f3db118909c"
+    },
+    {
+      "path": "firered_bridge/ui/fly_map.py",
+      "upstream_sha256": "3bac7284334dc10480ee5ec6e82fd2c9019525d1c9c4a5fa80c4f56b653d506f"
+    },
+    {
+      "path": "firered_bridge/ui/menus.py",
+      "upstream_sha256": "e6e23487be090c0fa1b8e0528c6b3282aaccce5eb442a7abea0e7832a3d32f27"
+    },
+    {
+      "path": "firered_bridge/ui/pokedex.py",
+      "upstream_sha256": "33562eac458e32ebedd464d71a0919c9388033aa44beeafd6e0c2d55007d4586"
+    },
+    {
+      "path": "firered_bridge/util/__init__.py",
+      "upstream_sha256": "59301664839a69f9ebd3f7246107e3149f058443599e4caf343948b5d5c7a682"
+    },
+    {
+      "path": "firered_bridge/util/bytes.py",
+      "upstream_sha256": "f263c39ca89f2e3cab55068a00d5b9058ebd7725cd61c8c0f1cee52373da4f99"
+    },
+    {
+      "path": "firered_bridge/world/__init__.py",
+      "upstream_sha256": "255af39833c96bace438ea41e09f095a120c8e33b0b9b53db1da46042d83d57e"
+    },
+    {
+      "path": "firered_bridge/world/collision.py",
+      "upstream_sha256": "282f94e9ba40f1d1efbdc83acbe377ab4d2aa16d294dd54f5b270746029554e3"
+    },
+    {
+      "path": "firered_bridge/world/events.py",
+      "upstream_sha256": "951b428731af36bad0eca59d69bd9f4441314459109c816928351b6676e08d14"
+    },
+    {
+      "path": "firered_bridge/world/map_read.py",
+      "upstream_sha256": "335e65211cbffd6cb7e54b405ecde5f0976a5429961a0ad1036fd39f7342109b"
+    },
+    {
+      "path": "firered_bridge/world/viewport.py",
+      "upstream_sha256": "c4b18f3a8016fa872584d5aa7ac377704c65b000a71cd75f462a5dd997242697"
+    },
+    {
+      "path": "firered_mgba_bridge.py",
+      "upstream_sha256": "9fee80737c3990b4c8ae024ceb629a95b25d00868ad3ee3596609fb6f3a07aa2"
+    },
+    {
+      "path": "frontend/app.js",
+      "upstream_sha256": "bae8f5dc3caad44c4fdc7a47758799c39285b239172ad7dd31e3b6cc391a5549"
+    },
+    {
+      "path": "frontend/index.html",
+      "upstream_sha256": "9a3d1a4ae0b2ab5dcdfef814f3704ab9cca874fd42c6a9dcaab0feacbda827bd"
+    },
+    {
+      "path": "frontend/styles.css",
+      "upstream_sha256": "c7f7abfa6b7bdbb2c6762c646298d658bfa4dc1300864987123b9050b3ae4220"
+    },
+    {
+      "path": "server/src/ai/historyProcessor.js",
+      "upstream_sha256": "9443fe07ccfbf6f1c1457fb2281702f43f49866f34829390f0f78cf0a78273b8"
+    },
+    {
+      "path": "server/src/ai/promptBuilder.js",
+      "upstream_sha256": "57f26778543877593c27b96484dd444d28b5520bff725f65f2b8f399d40a6ed4"
+    },
+    {
+      "path": "server/src/ai/tools.js",
+      "upstream_sha256": "cb0f4ddfe6d250657db72858410770951f1eb40ffcff8104b1a5ff1b1edd5cbb"
+    },
+    {
+      "path": "server/src/config.js",
+      "upstream_sha256": "5ecbb7d3d02e2ccfc64bc91b0b291bbb7c8f740d2671b6d7c00c1536628a6cb1"
+    },
+    {
+      "path": "server/src/constants/tiles.js",
+      "upstream_sha256": "6066282b688baa1ac709c344a13a467dd73edbf8bf5aec535f69559dd6cc25cc"
+    },
+    {
+      "path": "server/src/core/gameLoop.js",
+      "upstream_sha256": "14e7ca6736f52d7582b7ecec5fe85401e2b46a40dfc5e46e0f20d3274cfb3e81"
+    },
+    {
+      "path": "server/src/core/openaiClient.js",
+      "upstream_sha256": "f80941a2024079ff0ae260a699bd8973d3cefe13bb6d4dbd5b8b2e58ec548b92"
+    },
+    {
+      "path": "server/src/core/progressTracker.js",
+      "upstream_sha256": "75bf3ed9faa445139b2570c6c508e7fe28108e55b15713f87544e853bd370016"
+    },
+    {
+      "path": "server/src/core/socketHub.js",
+      "upstream_sha256": "4e22b1dffbaba5049e49672766930763fc431de8e0bb6a275ce2b66bda7ef11c"
+    },
+    {
+      "path": "server/src/formatters/markdownFormatter.js",
+      "upstream_sha256": "c76055a8b60b77ab78c68794699f6c6777b477fa5df782a5e4a31dc1aaafbd09"
+    },
+    {
+      "path": "server/src/services/pythonService.js",
+      "upstream_sha256": "88d3f6e4004560d19d2251d36c89b2d066a12e160eedb6427717401ad4da6531"
+    },
+    {
+      "path": "server/src/services/screenshotService.js",
+      "upstream_sha256": "62f142b7a549690a43bfdf61843b466d85450be144646502fc250de8431f3775"
+    },
+    {
+      "path": "server/src/state/stateManager.js",
+      "upstream_sha256": "82b17a87b0341397e1e68f938a06871210abc1fbd8ead186ff36ac2128f7eb5f"
+    },
+    {
+      "path": "server/src/utils/costs.js",
+      "upstream_sha256": "4fa5928b64c96f2364825672cc6d5548f0a6190b1cd51e511e07305edfa69255"
+    },
+    {
+      "path": "server/src/utils/fileUtils.js",
+      "upstream_sha256": "9d6448c8c511a6531027ea7621b4f9d6f1876d66d973cfa94c3652d4c467c707"
+    },
+    {
+      "path": "server/src/utils/timeTracker.js",
+      "upstream_sha256": "37039dfeee3ad146c8fd14e796448cbeec6b27747a05073efe1b925d712ce61f"
+    },
+    {
+      "path": "server/src/utils/tokenUsageTracker.js",
+      "upstream_sha256": "f264f5d8aee43bbe70fe46f96c8a8f7a4da2dfd1952c6678a36d288b39e2fdcb"
+    },
+    {
+      "path": "server/index.js",
+      "upstream_sha256": "1f70630904b2abaaddda8e25c2f4f58f4cbff83ff3b8bb36deb594afb2b3a2a4"
+    },
+    {
+      "path": "server/package.json",
+      "upstream_sha256": "48dc7c11aaa089f76ded8437b9d5e81b31c1a87b365ff12a0098d77b86d46d41"
+    },
+    {
+      "path": "server/prompts/game.txt",
+      "upstream_sha256": "94439853538efb232d310f3b81bac7606314fea2d015caf076f3e1a4682b5ba3"
+    },
+    {
+      "path": "server/prompts/path_finding.txt",
+      "upstream_sha256": "f96a6344ebcf5e3dfa2c5a90da89192daaca17e6ead6dc226dcb83e8ecf36d1d"
+    },
+    {
+      "path": "server/prompts/self_criticism.txt",
+      "upstream_sha256": "1349fd3d32879734a1242366111a13a7b90188c32a4b072478379de64014d084"
+    },
+    {
+      "path": "server/prompts/summary.txt",
+      "upstream_sha256": "71fc8a301c902940c44417f0fcda5398b088730364eec86698ed3d858f413c08"
+    },
+    {
+      "path": "server/prompts/summary_rollup.txt",
+      "upstream_sha256": "a30c36ad9bfe9eb589f27045fe5ea25a88af415fc947ea742ee7ad520c97453a"
+    },
+    {
+      "path": "server/progress_steps.json",
+      "upstream_sha256": "5cb0d32a5bbe2a3b1c82e1a484ef57df8f70d327a4c8e7dcfc027e4cf503a68c"
+    },
+    {
+      "path": "game_data_firered/mappings.json",
+      "upstream_sha256": "20b15a51b570196c0f3d160685239777760dbbee10085c35516d040651202739"
+    },
+    {
+      "path": "game_data_firered/metatile_behaviors.json",
+      "upstream_sha256": "0e6eaf60aa89ea494aedf7b05cf6d94871f9b58167545365a52bd8672a60b4e5"
+    },
+    {
+      "path": "pokefirered.sym",
+      "upstream_sha256": "21fe3b4004d105c616e2bff682300b22a01ec17821f78556f4f96259aaa666b8"
+    },
+    {
+      "path": "requirements.txt",
+      "upstream_sha256": "b0ae2c87213e5acc8b9dc0809764d64b3ca0135a120b3f116affba3f7d495fab"
+    }
+  ]
+}

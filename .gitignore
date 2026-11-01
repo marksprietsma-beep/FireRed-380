@@ -41,3 +41,13 @@ __pycache__/
 *.bak
 .DS_Store
 Thumbs.db
+
+# Integrated application dependencies, generated maps and private sessions
+node_modules/
+.venv/
+minimaps/
+server/gpt_data/
+server/tmp/
+tmp_screenshots/
+backup_saves/
+.firered-runtime/
