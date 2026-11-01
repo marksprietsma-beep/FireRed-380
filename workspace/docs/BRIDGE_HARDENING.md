@@ -44,6 +44,9 @@ Version 0.3.1 has offline mock coverage, not a Windows/mGBA pass.
   for T7 and verifies ordered success/error/success framing in T8. Cleanup runs
   in finally blocks. Failure/skipped checks cannot produce an overall pass.
   Reports use fresh UUID names and exclusive creation outside the checkout.
+  Output and disposable-save directories must be disjoint from each other and
+  the checkout. Neither may contain, equal or be inside a protected-save
+  directory; all directory-containment checks run in both directions.
 
 ## mGBA API evidence
 
@@ -84,7 +87,7 @@ python -m py_compile .\workspace\src\bridge_client.py .\workspace\tests\test_bri
 The runner executes the complete Python suite, including a subprocess that loads
 the real Lua source against mGBA/socket doubles. Missing Lua is a failure, not a
 skip. It writes a new `firered-mocks-<UUID>.json` in the OS temporary directory.
-Expected current result: **35 Python tests passed**, including **18 Lua scenarios**;
+Expected current result: **41 Python tests passed**, including **18 Lua scenarios**;
 zero failures, errors or skips. Simulated battery failures printed during mock
 checks are expected assertions of failure reporting, not live emulator results.
 

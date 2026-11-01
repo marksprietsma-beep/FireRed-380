@@ -46,6 +46,11 @@ def plain_path(value: str) -> Path:
     return path.resolve(strict=True)
 
 
+def directories_overlap(first: Path, second: Path) -> bool:
+    """Resolved directories overlap if equal or either contains the other."""
+    return first.is_relative_to(second) or second.is_relative_to(first)
+
+
 def verify_safety(manifest: dict) -> tuple[Path, dict[Path, str]]:
     if sys.platform != "win32":
         raise ValueError("live battery requires the intended Windows/mGBA setup")
@@ -65,7 +70,13 @@ def verify_safety(manifest: dict) -> tuple[Path, dict[Path, str]]:
     active = plain_path(manifest["active_save"])
     isolated = plain_path(manifest["disposable_save_dir"])
     checkout = Path(__file__).resolve().parents[2]
-    if not output.is_dir() or any(output.iterdir()) or output.is_relative_to(checkout):
+    if directories_overlap(output, checkout):
+        raise ValueError("output directory must not overlap the checkout")
+    if directories_overlap(isolated, checkout):
+        raise ValueError("disposable save directory must not overlap the checkout")
+    if directories_overlap(output, isolated):
+        raise ValueError("output and disposable save directories must not overlap")
+    if not output.is_dir() or any(output.iterdir()):
         raise ValueError("output must be a new empty directory outside the checkout")
     if not isolated.is_dir() or not active.is_file() or active.suffix.lower() != ".sav" or active.parent != isolated:
         raise ValueError("active save must be an existing disposable .sav in its isolated directory")
@@ -75,7 +86,8 @@ def verify_safety(manifest: dict) -> tuple[Path, dict[Path, str]]:
     for item in manifest["protected_files"]:
         path = plain_path(item["path"])
         if (not path.is_file() or path == active or os.path.samefile(path, active)
-                or path.is_relative_to(isolated) or output.is_relative_to(path.parent)):
+                or directories_overlap(isolated, path.parent)
+                or directories_overlap(output, path.parent)):
             raise ValueError("protected files must be separate from disposable save and output directories")
         digest = sha256(path)
         if digest != item["sha256"]:

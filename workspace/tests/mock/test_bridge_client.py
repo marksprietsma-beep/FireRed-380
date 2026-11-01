@@ -152,6 +152,76 @@ class BatteryTests(unittest.TestCase):
     def setUp(self):
         self.b = load_battery()
 
+    def verify_directory_layout(self, *, output=None, isolated=None, protected_dir=None):
+        """Exercise the full safety gate with a virtual FS; no game files exist."""
+        from contextlib import ExitStack
+
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture"
+        checkout = root / "checkout"
+        output = output or root / "output"
+        isolated = isolated or root / "disposable"
+        protected_dir = protected_dir or root / "protected"
+        manifest = {
+            "owner_approved_isolation": True,
+            "active_save_path_verified_in_mgba": True,
+            "host": "127.0.0.1", "port": 8888,
+            "bridge_version": bc.BRIDGE_VERSION, "bridge_sha256": "expected",
+            "output_dir": str(output), "disposable_save_dir": str(isolated),
+            "active_save": str(isolated / "active.sav"),
+            "protected_files": [{"path": str(protected_dir / "original.fixture"),
+                                 "sha256": "expected"}],
+        }
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(self.b.sys, "platform", "win32"))
+            stack.enter_context(patch.object(self.b, "__file__",
+                                            str(checkout / "workspace/tests/test_bridge_battery.py")))
+            stack.enter_context(patch.object(self.b, "sha256", return_value="expected"))
+            stack.enter_context(patch.object(self.b, "plain_path", side_effect=lambda p: Path(p).resolve()))
+            stack.enter_context(patch.object(Path, "is_dir", return_value=True))
+            stack.enter_context(patch.object(Path, "iterdir", return_value=iter(())))
+            stack.enter_context(patch.object(Path, "is_file", return_value=True))
+            stack.enter_context(patch.object(self.b.os.path, "samefile", return_value=False))
+            return self.b.verify_safety(manifest)
+
+    def test_safety_disjoint_directories_accepted(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture"
+        output, protected = self.verify_directory_layout()
+        self.assertEqual(output, (root / "output").resolve())
+        self.assertEqual(protected, {(root / "protected/original.fixture").resolve(): "expected"})
+
+    def test_safety_disposable_directory_cannot_overlap_checkout(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture"
+        for isolated in (root / "checkout/saves", root / "checkout", root):
+            with self.subTest(isolated=isolated), self.assertRaisesRegex(ValueError, "disposable.*checkout"):
+                self.verify_directory_layout(isolated=isolated)
+
+    def test_safety_output_directory_cannot_overlap_checkout(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture"
+        for output in (root / "checkout/output", root / "checkout", root):
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, "output.*checkout"):
+                self.verify_directory_layout(output=output)
+
+    def test_safety_output_and_disposable_directories_cannot_overlap(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture/disposable"
+        for output, isolated in ((root, root), (root / "output", root), (root, root / "saves")):
+            with self.subTest(output=output, isolated=isolated), self.assertRaisesRegex(
+                    ValueError, "output and disposable save directories"):
+                self.verify_directory_layout(output=output, isolated=isolated)
+
+    def test_safety_protected_and_disposable_directories_cannot_overlap(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture/save-area"
+        for isolated, protected in ((root, root), (root / "saves", root), (root, root / "protected")):
+            with self.subTest(isolated=isolated, protected=protected), self.assertRaisesRegex(
+                    ValueError, "protected files must be separate"):
+                self.verify_directory_layout(isolated=isolated, protected_dir=protected)
+
+    def test_safety_protected_and_output_directories_cannot_overlap(self):
+        root = Path(Path.cwd().anchor) / "firered-safety-fixture/output-area"
+        for output, protected in ((root, root), (root / "output", root), (root, root / "protected")):
+            with self.subTest(output=output, protected=protected), self.assertRaisesRegex(
+                    ValueError, "protected files must be separate"):
+                self.verify_directory_layout(output=output, protected_dir=protected)
+
     def test_import_has_no_writes_or_network(self):
         with patch.object(Path, "mkdir") as mkdir, patch.object(bc.socket, "create_connection") as connect:
             load_battery()
