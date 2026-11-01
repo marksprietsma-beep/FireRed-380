@@ -3,19 +3,30 @@ const path = require("path");
 // `__dirname` points to `server/src`; ROOT_DIR is `server/`
 const ROOT_DIR = path.join(__dirname, "..");
 
+const provider = process.env.AI_PROVIDER || 'ollama';
+const ai = {
+  provider,
+  vision: process.env.AI_VISION === "1",
+  baseURL: process.env.AI_BASE_URL || (provider === 'openai' ? 'https://api.openai.com/v1' : 'http://127.0.0.1:11434/v1'),
+  model: process.env.AI_MODEL || (provider === 'openai' ? 'gpt-4.1' : 'qwen3.8:27b'),
+  apiKey: process.env.AI_API_KEY || (provider === 'openai' ? process.env.OPENAI_API_KEY : undefined),
+  timeout: Number(process.env.AI_TIMEOUT_MS || 120000),
+};
+if (!Number.isFinite(ai.timeout) || ai.timeout <= 0) throw new Error('Invalid AI timeout');
 const config = {
+  ai,
   wsPort: Number(process.env.WS_PORT || 9885),
 
   // --- OpenAI Configuration ---
   openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: process.env.OPENAI_MODEL || "gpt-5.2",
+    apiKey: ai.apiKey,
+    model: ai.model,
     reasoningEffort: process.env.OPENAI_REASONING_EFFORT || "high",
     reasoningEffortBattle: process.env.OPENAI_REASONING_EFFORT_BATTLE || "high",
     reasoningEffortDialog: process.env.OPENAI_REASONING_EFFORT_DIALOG || "high",
     reasoningEffortCriticism: process.env.OPENAI_REASONING_EFFORT_CRITICISM || "high",
     reasoningEffortSummary: process.env.OPENAI_REASONING_EFFORT_SUMMARY || "xhigh",
-    modelPathFinding: process.env.OPENAI_MODEL_PATHFINDING || "gpt-5.2",
+    modelPathFinding: ai.model,
     reasoningEffortPathfinding: process.env.OPENAI_REASONING_EFFORT_PATHFINDING || "high",
     reasoningSummary: process.env.OPENAI_REASONING_SUMMARY || "auto",
 
@@ -50,7 +61,7 @@ const config = {
 
   // --- Runtime Paths ---
   get dataDir() {
-    return "gpt_data";
+    return process.env.FIRERED_SESSION_DIR || "gpt_data";
   },
 
   get promptsDir() {
@@ -66,52 +77,52 @@ const config = {
     },
 
     get historySaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "history.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "history.json");
     },
     get memorySaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "memory.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "memory.json");
     },
     get objectivesSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "objectives.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "objectives.json");
     },
     get markersSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "markers.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "markers.json");
     },
     get countersSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "counters.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "counters.json");
     },
     get badgesSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "badges_log.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "badges_log.json");
     },
     get mapVisitsSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "map_visits.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "map_visits.json");
     },
     get summariesSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "summaries.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "summaries.json");
     },
     get allSummariesSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "all_summaries.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "all_summaries.json");
     },
     get progressStepsFile() {
-      return path.join(ROOT_DIR, config.dataDir, "progress_steps.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "progress_steps.json");
     },
     get lastVisitedMapsFile() {
-      return path.join(ROOT_DIR, config.dataDir, "last_visited_maps.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "last_visited_maps.json");
     },
     get gameDataJsonFile() {
-      return path.join(ROOT_DIR, config.dataDir, "game_data.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "game_data.json");
     },
     get lastCriticismSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "last_criticism.txt");
+      return path.resolve(ROOT_DIR, config.dataDir, "last_criticism.txt");
     },
     get tokenUsageFile() {
-      return path.join(ROOT_DIR, config.dataDir, "token_usage.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "token_usage.json");
     },
     get timeUsageFile() {
-      return path.join(ROOT_DIR, config.dataDir, "time_usage.json");
+      return path.resolve(ROOT_DIR, config.dataDir, "time_usage.json");
     },
     get lastUserInputTextSaveFile() {
-      return path.join(ROOT_DIR, config.dataDir, "last_userInputText_prompt.txt");
+      return path.resolve(ROOT_DIR, config.dataDir, "last_userInputText_prompt.txt");
     },
   },
 
@@ -138,4 +149,7 @@ const config = {
   loopDelayMs: 0,
 };
 
+const pythonEndpoint = new URL(config.pythonServer.baseUrl);
+if (!['127.0.0.1','localhost','[::1]'].includes(pythonEndpoint.hostname))
+  throw new Error('Python API must stay local');
 module.exports = { config };

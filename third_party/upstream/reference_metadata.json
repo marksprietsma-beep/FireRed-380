@@ -1,0 +1,23 @@
+{
+  "source": "https://github.com/pret/pokefirered",
+  "commit": "338ec9d956fcd39f4bbb361b444ded3eec8e9425",
+  "note": "Factual identifiers, enum ordering, numeric grid bounds and flag associations only; no implementation source or media imported.",
+  "inspected_sources": [
+    {
+      "path": "data/layouts/layouts.json",
+      "sha256": "1e8fdf737b31d269d0b918d4ed88bec8c2701bc7b1cbae2b2e3938bdea3de394"
+    },
+    {
+      "path": "include/constants/flags.h",
+      "sha256": "38a6e4f80241f88858fb918859a87326659f6175f4cb0f07dcc0e57d5561f7d2"
+    },
+    {
+      "path": "src/data/region_map/region_map_sections.json",
+      "sha256": "82e456cbe86a57ebc4bd0d88d6e000e83e28340895ac038079c38d415bc6de5f"
+    },
+    {
+      "path": "src/region_map.c",
+      "sha256": "b761f02803a1c5aada4465b9a93bf2b02c5ef1118432e677a30a5a4a4b78e0cb"
+    }
+  ]
+}

@@ -193,7 +193,7 @@ def _load_repo_mapsec_names() -> List[str]:
         return _MAPSEC_NAMES_FROM_REPO
 
     candidates = [
-        Path(__file__).resolve().parents[2] / "pokefirered" / "src" / "data" / "region_map" / "region_map_sections.json",
+        Path(__file__).resolve().parents[2] / "game_data_firered" / "region_map_sections.json",
     ]
 
     for path in candidates:

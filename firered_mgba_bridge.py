@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import uuid
 import threading
 import time
 import traceback
@@ -767,131 +768,9 @@ def _env_bool(name: str, default: bool) -> bool:
     return default
 
 
-def _list_savestate_backups(backup_dir: Path) -> List[Path]:
-    """
-    Return existing savestate backup files, newest first.
-    """
-    try:
-        if not backup_dir.exists():
-            return []
-        files: List[Path] = []
-        for p in backup_dir.iterdir():
-            if not p.is_file():
-                continue
-            if not p.name.startswith("savestate_"):
-                continue
-            if p.suffix.lower() != ".ss0":
-                continue
-            files.append(p)
-        with_mtime: List[tuple[float, Path]] = []
-        for p in files:
-            try:
-                with_mtime.append((float(p.stat().st_mtime), p))
-            except Exception:
-                pass
-        with_mtime.sort(key=lambda item: item[0], reverse=True)
-        return [p for _, p in with_mtime]
-    except Exception:
-        return []
-
-
-def _prune_savestate_backups(backup_dir: Path, keep: int) -> int:
-    keep = max(0, int(keep))
-    backups = _list_savestate_backups(backup_dir)
-    deleted = 0
-    for p in backups[keep:]:
-        try:
-            p.unlink()
-            deleted += 1
-        except Exception:
-            pass
-    return deleted
-
-
 def _maybe_backup_savestate() -> Dict[str, Any]:
-    """
-    Rate-limited savestate backup:
-    - Create at most once every 5 minutes (default).
-    - Keep only the 50 newest backups (default).
-    """
-    enabled = _env_bool("FIRERED_SAVESTATE_BACKUP_ENABLED", True)
-    try:
-        interval_s = int(
-            os.environ.get(
-                "FIRERED_SAVESTATE_BACKUP_INTERVAL_S",
-                "300",
-            )
-        )
-    except Exception:
-        interval_s = 300
-    try:
-        keep = int(os.environ.get("FIRERED_SAVESTATE_BACKUP_KEEP", "50"))
-    except Exception:
-        keep = 50
-
-    backup_dir = Path(
-        os.environ.get(
-            "FIRERED_SAVESTATE_BACKUP_DIR",
-            str(_repo_root_dir() / "backup_saves"),
-        )
-    )
-
-    info: Dict[str, Any] = {
-        "enabled": bool(enabled),
-        "dir": str(backup_dir),
-        "intervalSeconds": int(interval_s),
-        "keep": int(keep),
-    }
-
-    if not enabled:
-        info.update({"skipped": True, "skipReason": "disabled"})
-        return info
-
-    try:
-        backup_dir.mkdir(parents=True, exist_ok=True)
-    except Exception as exc:
-        info.update({"ok": False, "error": f"Failed to create backup dir: {exc}"})
-        return info
-
-    global _LAST_SAVESTATE_BACKUP_TS
-    with _SAVESTATE_BACKUP_LOCK:
-        now = time.time()
-
-        if _LAST_SAVESTATE_BACKUP_TS is None:
-            backups = _list_savestate_backups(backup_dir)
-            if backups:
-                try:
-                    _LAST_SAVESTATE_BACKUP_TS = float(backups[0].stat().st_mtime)
-                except Exception:
-                    _LAST_SAVESTATE_BACKUP_TS = None
-
-        if _LAST_SAVESTATE_BACKUP_TS is not None and (now - _LAST_SAVESTATE_BACKUP_TS) < float(interval_s):
-            info.update({"skipped": True, "skipReason": "interval"})
-            try:
-                info["lastBackupAtMs"] = int(_LAST_SAVESTATE_BACKUP_TS * 1000.0)
-            except Exception:
-                pass
-            # Opportunistic pruning (cheap: max 50 files).
-            info["deletedOldBackups"] = _prune_savestate_backups(backup_dir, keep)
-            return info
-
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        raw_path = backup_dir / f"savestate_{timestamp}.ss0"
-        mgba_path = _to_mgba_host_path(raw_path)
-
-        resp = mgba_save_state_file(mgba_path)
-        ok = bool(resp.get("ok")) and _wait_for_file_ready(raw_path, timeout_s=2.5)
-        info["created"] = True
-        info["ok"] = bool(ok)
-        info["path"] = str(raw_path)
-        info["mgba"] = resp
-        if not ok:
-            info["error"] = resp.get("error") or "Savestate file not ready"
-            return info
-
-        _LAST_SAVESTATE_BACKUP_TS = now
-        info["deletedOldBackups"] = _prune_savestate_backups(backup_dir, keep)
-        return info
+    # Integration policy: never enumerate, create, delete or prune backups.
+    return {"enabled": False, "skipped": True, "skipReason": "automatic backups excluded"}
 
 
 def _append_transcript_entry(transcript: List[str], text: str) -> None:
@@ -1059,6 +938,8 @@ async def lifespan(app: Any):
 
 def request_data() -> Dict[str, Any]:
     try:
+        from firered_bridge.safety import require_authorized
+        session = require_authorized()
         state = build_full_state()
 
         # --- Savestate backup (rate-limited) ---
@@ -1068,11 +949,8 @@ def request_data() -> Dict[str, Any]:
         # --- Screenshot (raw) ---
         # /requestData updates a screenshot file and returns its path.
         # The Node loop reads it and performs upscale x3 + optional overlay in JS.
-        screenshot_dir = Path(
-            os.environ.get("FIRERED_SCREENSHOT_DIR", str(_repo_root_dir() / "tmp_screenshots"))
-        )
-        screenshot_dir.mkdir(parents=True, exist_ok=True)
-        raw_path = screenshot_dir / "gba_raw.png"
+        screenshot_dir = session["output"]
+        raw_path = screenshot_dir / ("observation-" + uuid.uuid4().hex + ".png")
         mgba_path = _to_mgba_host_path(raw_path)
 
         shot = mgba_screenshot(mgba_path)
@@ -1139,7 +1017,7 @@ def minimap_snapshot() -> Dict[str, Any]:
         return {"ok": False, "error": str(exc), "trace": traceback.format_exc()}
 
 
-def send_commands(body: SendCommandsBody) -> Dict[str, Any]:
+def _send_commands(body: SendCommandsBody) -> Dict[str, Any]:
     sequence_before = build_input_trace_state()
     _update_minimap_snapshot_from_trace(sequence_before)
     started_in_dialog = bool((sequence_before.get("dialog") or {}).get("inDialog"))
@@ -1477,7 +1355,7 @@ def send_commands(body: SendCommandsBody) -> Dict[str, Any]:
         "results": results,
     }
 
-def restart_console() -> Dict[str, Any]:
+def _restart_console() -> Dict[str, Any]:
     """
     Soft reset the emulator.
     """
@@ -1490,19 +1368,81 @@ def restart_console() -> Dict[str, Any]:
         return {"status": False, "message": str(exc)}
 
 
+def send_commands(body: SendCommandsBody) -> Dict[str, Any]:
+    from firered_bridge.safety import require_actions
+    from firered_bridge.mgba_client import _CLIENT
+    try:
+        require_actions()
+        # One action per fresh observation. Multi-step plans stay in the agent.
+        if len(body.commands) != 1:
+            raise ValueError("exactly one bounded action per observation required")
+        command = body.commands[0]
+        label = command if isinstance(command, str) else command.get("command", "")
+        if _normalize_control_command(label) == "a_until_end_of_dialog":
+            raise ValueError("unbounded dialogue macro disabled; request one A press")
+        if isinstance(command, dict):
+            if command.get("type") not in {"press", "hold", "control", "controlStatus"}:
+                raise ValueError("unsupported command type")
+            if command.get("type") == "hold":
+                frames = command.get("frames", 60)
+                if isinstance(frames, bool) or not isinstance(frames, int) or not 1 <= frames <= 300:
+                    raise ValueError("hold frames must be an integer in 1..300")
+        result = _send_commands(body)
+        if any(not step.get("ok") for step in result.get("results", [])):
+            result["ok"] = False
+            from firered_bridge.safety import pause
+            pause()
+        return result
+    except Exception as exc:
+        from firered_bridge.safety import pause
+        try: pause()
+        except Exception: pass
+        return {"ok": False, "error": str(exc), "uncertain": True}
+    finally:
+        from firered_bridge.safety import status
+        if status()["authorized"]:
+            _CLIENT.clear_all()
+            if _CLIENT.keys():
+                raise RuntimeError("keys remain pressed; pause emulator")
+
+
+def restart_console():
+    return {"status": False, "message": "reset disabled; use explicit local operator recovery"}
+
+
+def health():
+    from firered_bridge.safety import status
+    return {"ok": True, "transport": "FireRed-380 0.3.1", "session": status()}
+
+
+def pause_controls():
+    from firered_bridge.safety import pause, status
+    pause()
+    return status()
+
+
+def resume_controls():
+    from firered_bridge.safety import resume, status
+    resume()
+    return status()
+
+
 app: Any = None
 if FastAPI is not None:
     app = FastAPI(title="FireRed All-in-One API", version="1.0", lifespan=lifespan)
 
-    # Allow all CORS
+    # Only local dashboard origins
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=["http://127.0.0.1:9885", "http://localhost:9885"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
+    app.get("/health")(health)
+    app.post("/control/pause")(pause_controls)
+    app.post("/control/resume")(resume_controls)
     app.get("/requestData")(request_data)
     app.get("/minimapSnapshot")(minimap_snapshot)
     app.post("/sendCommands")(send_commands)
@@ -1513,4 +1453,4 @@ if __name__ == "__main__":
     import uvicorn
     if app is None:  # pragma: no cover
         raise RuntimeError("fastapi is not installed; cannot start server.")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

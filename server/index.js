@@ -2,13 +2,16 @@ require("dotenv").config();
 
 const express = require("express");
 const http = require("http");
+const path = require("path");
+const axios = require("axios");
+const supervision = require("./src/core/supervision");
 const cors = require("cors");
 const fsSync = require("fs");
 
 const { config } = require("./src/config");
 const { state, loadPersistentState, attachBroadcast } = require("./src/state/stateManager");
 const socketHub = require("./src/core/socketHub");
-const { fetchMinimapSnapshot, getMinimapData } = require("./src/services/pythonService");
+const { fetchMinimapSnapshot, getMinimapData, fetchGameData } = require("./src/services/pythonService");
 
 let gameLoopStarted = false;
 
@@ -113,7 +116,30 @@ async function start() {
   attachBroadcast(socketHub.broadcast);
 
   const app = express();
-  app.use(cors());
+  app.use(cors({origin:['http://127.0.0.1:9885','http://localhost:9885']}));
+  app.use(express.json({limit:'32kb'}));
+  app.use((req,res,next) => {
+    if (req.headers.origin && !['http://127.0.0.1:9885','http://localhost:9885'].includes(req.headers.origin))
+      return res.status(403).json({error:'local dashboard origin required'});
+    next();
+  });
+  app.use(express.static(path.join(__dirname, '../frontend')));
+  app.post('/control/resume', async (req,res) => {
+    try {
+      const actions = req.body.actions ?? 10;
+      if (!Number.isInteger(actions) || actions < 1 || actions > 10) throw new Error('Choose 1..10 actions');
+      await axios.post(config.pythonServer.baseUrl + '/control/resume', {}, {timeout:15000, proxy:false});
+      supervision.resume(actions);
+      res.json(supervision.status());
+    } catch(error) {res.status(409).json({error:error.message});}
+  });
+  app.post('/control/pause', async (req,res) => {
+    supervision.pause();
+    try {
+      await axios.post(config.pythonServer.baseUrl + '/control/pause', {}, {timeout:15000, proxy:false});
+      res.json(supervision.status());
+    } catch(error) {res.status(503).json({error:error.message, ...supervision.status()});}
+  });
 
   const server = http.createServer(app);
   const wsPort = config.wsPort;
@@ -122,10 +148,18 @@ async function start() {
     res.json({
       ok: true,
       wsPort,
+      provider: config.ai.provider, model:config.ai.model, supervision:supervision.status(),
       pythonBaseUrl: config.pythonServer.baseUrl,
     });
   });
 
+  app.get('/state', async (req,res) => {
+    const game = await fetchGameData();
+    if (!game) return res.status(503).json({error:'Emulator/session unavailable'});
+    state.gameDataJsonRef = game;
+    socketHub.broadcast({type:'full_state',payload:{...game,objectives:state.objectives,memory:state.memory,markers:state.markers}});
+    res.json(game);
+  });
   app.get("/getMinimap", async (req, res) => {
     const minimapData = await getMinimapData();
     res.json(minimapData);
@@ -168,7 +202,8 @@ async function start() {
     });
   });
 
-  const wss = new socketHub.WebSocket.Server({ server });
+  const wss = new socketHub.WebSocket.Server({ server, verifyClient: info => !info.origin ||
+    ['http://127.0.0.1:9885','http://localhost:9885'].includes(info.origin) });
 
   wss.on("connection", (ws, req) => {
     const clientIp = req.socket.remoteAddress;
@@ -252,17 +287,26 @@ async function start() {
     });
   });
 
-  server.listen(wsPort, () => {
+  server.listen(wsPort, "127.0.0.1", () => {
     console.log(`HTTP and WebSocket server started on http://localhost:${wsPort}`);
   });
 
-  startGameLoopInBackground();
+  for (const signal of ['SIGINT','SIGTERM']) process.once(signal, async () => {
+    supervision.pause();
+    try {await axios.post(config.pythonServer.baseUrl + '/control/pause',{}, {timeout:5000,proxy:false});}
+    catch(error) {console.error('Python release could not be confirmed:',error.message);}
+    server.close(); process.exit(0);
+  });
+  startGameLoopInBackground(); // idle until explicit operator resume; never auto-authorises
+  return server;
 }
 
-start().catch((error) => {
+if (require.main === module) start().catch((error) => {
   console.error("Fatal unhandled error:", error);
   if (typeof socketHub.broadcast === "function") {
     socketHub.broadcast({ type: "error_message", payload: `Fatal error: ${error.message}. Agent stopping.` });
   }
   process.exit(1);
 });
+
+module.exports = {start};

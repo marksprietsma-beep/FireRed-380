@@ -36,3 +36,12 @@ code; they are reference metadata, not a redistributed game. Pokémon names rema
 their owners' trademarks. The upstream licence does not grant rights to any ROM or
 Nintendo game assets. No `pret/pokefirered` submodule or extracted game media is
 included. These reference tables still require validation against the actual ROM.
+
+Additional factual reference metadata was derived from four text files in
+`pret/pokefirered` revision `338ec9d956fcd39f4bbb361b444ded3eec8e9425`:
+https://github.com/pret/pokefirered/tree/338ec9d956fcd39f4bbb361b444ded3eec8e9425
+Only identifiers, ordering, numeric bounds and flag associations are included;
+no decompilation C implementation, graphics, audio, scripts or ROM is imported.
+Source hashes and the derivation scope are in `third_party/upstream/reference_metadata.json`
+and `UPSTREAM_INTEGRATION.md`. This attribution does not assert ownership of or a
+licence to redistribute Nintendo game media.

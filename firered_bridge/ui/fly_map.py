@@ -84,7 +84,7 @@ def _load_map_sections() -> None:
     try:
         repo_root = Path(__file__).resolve().parents[2]
         candidates = [
-            repo_root / "pokefirered" / "src" / "data" / "region_map" / "region_map_sections.json",
+            repo_root / "game_data_firered" / "region_map_sections.json",
         ]
         sections: Optional[List[Any]] = None
         for path in candidates:
@@ -117,61 +117,17 @@ def _load_world_map_flag_ids() -> None:
     if _WORLD_MAP_FLAG_CONST_TO_ID:
         return
 
-    try:
-        path = Path(__file__).resolve().parents[2] / "pokefirered" / "include" / "constants" / "flags.h"
-        raw = path.read_text("utf-8")
-    except Exception:
-        return
-
-    table: Dict[str, int] = {}
-    # Example: #define FLAG_WORLD_MAP_PALLET_TOWN (SYS_FLAGS + 0x90)
-    for m in re.finditer(
-        r"#define\s+(FLAG_WORLD_MAP_[A-Z0-9_]+)\s+\(\s*SYS_FLAGS\s*\+\s*(0x[0-9A-Fa-f]+|\d+)\s*\)",
-        raw,
-    ):
-        try:
-            flag_name = str(m.group(1))
-            offset = int(str(m.group(2)), 0)
-            table[flag_name] = int(SYSTEM_FLAGS_START) + int(offset)
-        except Exception:
-            continue
-    if table:
-        _WORLD_MAP_FLAG_CONST_TO_ID = table
+    path = Path(__file__).resolve().parents[2] / "game_data_firered/world_map_flags.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    _WORLD_MAP_FLAG_CONST_TO_ID = {name: int(SYSTEM_FLAGS_START) + offset
+                                   for name, offset in data["offsets"].items()}
 
 
 def _load_mapsec_to_world_map_flag_map() -> None:
     global _MAPSEC_TO_WORLD_MAP_FLAG_CONST
-    if _MAPSEC_TO_WORLD_MAP_FLAG_CONST:
-        return
-
-    try:
-        path = Path(__file__).resolve().parents[2] / "pokefirered" / "src" / "region_map.c"
-        raw = path.read_text("utf-8")
-    except Exception:
-        return
-
-    # Skip the forward declaration and target the actual function definition.
-    start = raw.find("static u8 GetMapsecType(u8 mapsec)")
-    if start < 0:
-        return
-    end = raw.find("static u8 GetDungeonMapsecType(", start)
-    if end < 0:
-        return
-
-    body = raw[start:end]
-    table: Dict[str, str] = {}
-    case_matches = list(re.finditer(r"case\s+(MAPSEC_[A-Z0-9_]+)\s*:", body))
-    for i, case_m in enumerate(case_matches):
-        mapsec_const = str(case_m.group(1))
-        block_start = int(case_m.end())
-        block_end = int(case_matches[i + 1].start()) if (i + 1) < len(case_matches) else len(body)
-        block = body[block_start:block_end]
-        flag_m = re.search(r"FlagGet\((FLAG_WORLD_MAP_[A-Z0-9_]+)\)", block)
-        if flag_m is None:
-            continue
-        table[mapsec_const] = str(flag_m.group(1))
-    if table:
-        _MAPSEC_TO_WORLD_MAP_FLAG_CONST = table
+    if not _MAPSEC_TO_WORLD_MAP_FLAG_CONST:
+        path = Path(__file__).resolve().parents[2] / "game_data_firered/world_map_flags.json"
+        _MAPSEC_TO_WORLD_MAP_FLAG_CONST = json.loads(path.read_text(encoding="utf-8"))["sections"]
 
 
 def _mapsec_meta(mapsec_id: int) -> Optional[Dict[str, Any]]:

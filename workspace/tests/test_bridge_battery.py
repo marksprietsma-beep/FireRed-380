@@ -96,6 +96,22 @@ def verify_safety(manifest: dict) -> tuple[Path, dict[Path, str]]:
     return output, protected
 
 
+def verify_owner_safety(manifest: dict, *, opt_in: bool = False):
+    from owner_testing import verify_owner_rom
+    verify_owner_rom(manifest, opt_in=opt_in)
+    if manifest.get("host") != "127.0.0.1" or manifest.get("port") != 8888:
+        raise ValueError("expected endpoint is 127.0.0.1:8888")
+    if manifest.get("bridge_version") != BRIDGE_VERSION or manifest.get("bridge_sha256") != sha256(BRIDGE):
+        raise ValueError("reviewed bridge version/hash mismatch")
+    output = plain_path(manifest["output_dir"])
+    checkout = Path(__file__).resolve().parents[2]
+    rom_dir = Path(manifest["rom_path"]).parent.resolve()
+    if (not output.is_dir() or any(output.iterdir()) or directories_overlap(output, checkout)
+            or directories_overlap(output, rom_dir)):
+        raise ValueError("owner-mode output must be new, empty and separate from ROM/save and checkout")
+    return output, {}  # no save-preservation checks in this explicitly opted-in mode
+
+
 def verify_listener(manifest: dict) -> None:
     """Check the OS listener and owning executable, not just bridge self-report."""
     pid = manifest.get("mgba_pid")
@@ -210,7 +226,7 @@ def t6(c: BridgeClient) -> str:
         released(c)
 
 
-def run_checks(c: BridgeClient, output: Path, protected: dict[Path, str]) -> dict:
+def run_checks(c: BridgeClient, output: Path, protected: dict[Path, str], *, owner_authorized=False) -> dict:
     results = []
     def check(tid, fn):
         try:
@@ -272,30 +288,50 @@ def run_checks(c: BridgeClient, output: Path, protected: dict[Path, str]) -> dic
             raise BridgeError(f"bad ordered batch replies: {replies!r}")
         return "four ordered replies, including error and subsequent successful reply"
 
+    surface_ok = check("S3", lambda: verify_read_only_surface())
     preflight_ok = check("PREFLIGHT", preflight)
-    if preflight_ok:
+    if preflight_ok and surface_ok:
         try:
             # Do not continue to inputs if observational/transport checks fail.
             observations_ok = all([check("T1", ping),
                 check("T2", lambda: wait_frames(c, c.frame() + 20)),
                 check("T3", memory), check("T4", screenshot)])
             if observations_ok:
-                if check("S2_BEFORE_INPUT", lambda: verify_hashes(protected)):
+                if owner_authorized or check("S2_BEFORE_INPUT", lambda: verify_hashes(protected)):
                     if check("T5", lambda: t5(c)):
-                        if check("S2_AFTER_T5", lambda: verify_hashes(protected)):
+                        if owner_authorized or check("S2_AFTER_T5", lambda: verify_hashes(protected)):
                             check("T6", lambda: t6(c))
             check("T7", stability)
             check("T8", framing)
         finally:
             check("KEYS_RELEASED", lambda: released(c) or "all ten keys verified clear")
-    check("S2", lambda: verify_hashes(protected))
-    required = {"PREFLIGHT", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "KEYS_RELEASED", "S2", "S2_BEFORE_INPUT", "S2_AFTER_T5"}
+    if owner_authorized:
+        results.extend({"test": tid, "status": "OWNER-WAIVED", "pass": None,
+                        "detail": "owner explicitly waived this check"} for tid in ("S1", "S2"))
+    else:
+        check("S2", lambda: verify_hashes(protected))
+    required = {"S3", "PREFLIGHT", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "KEYS_RELEASED", "S2", "S2_BEFORE_INPUT", "S2_AFTER_T5"}
+    if owner_authorized:
+        required.discard("S2_BEFORE_INPUT")
+        required.discard("S2_AFTER_T5")
+        required.add("S1")
+        required.add("S2")
     return {"time": datetime.now(timezone.utc).isoformat(), "bridge_version": BRIDGE_VERSION,
             "target": "127.0.0.1:8888", "results": results,
-            "all_pass": {r["test"] for r in results} == required and all(r["pass"] for r in results),
-            "S1": "operator-attested active save path plus filesystem separation checks; not discovered from mGBA",
+            "all_pass": {r["test"] for r in results} == required and all(r["pass"] is True or r.get("status") == "OWNER-WAIVED" for r in results),
+            "mode": "owner-authorized" if owner_authorized else "protected",
+            "S1": "OWNER-WAIVED" if owner_authorized else "operator-attested active save path plus filesystem separation checks; not discovered from mGBA",
+            "S2": "OWNER-WAIVED" if owner_authorized else "see S2 result",
+            "waived_checks": ["S1", "S2"] if owner_authorized else [],
             "S3": "reviewed source hash plus static surface guard; no live memory-write test",
             "manual_remaining": ["visually compare screenshot with mGBA", "verify actual active .sav destination"]}
+
+
+def verify_read_only_surface():
+    source = BRIDGE.read_text(encoding="utf-8")
+    if any(token in source for token in ("emu:write", "emu.memory", "emu:loadROM", "emu:loadSave")):
+        raise ValueError("S3 failed: unexpected write/cheat surface")
+    return "reviewed hardened Lua dispatch has no arbitrary RAM-write or cheat command"
 
 
 def verify_hashes(protected: dict[Path, str]) -> str:
@@ -308,14 +344,18 @@ def verify_hashes(protected: dict[Path, str]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--safety-json", required=True, type=Path)
+    parser.add_argument("--owner-authorized-save-modification", action="store_true")
     args = parser.parse_args()
     try:
         manifest = json.loads(args.safety_json.read_text(encoding="utf-8"))
-        output, protected = verify_safety(manifest)
+        if args.owner_authorized_save_modification:
+            output, protected = verify_owner_safety(manifest, opt_in=True)
+        else:
+            output, protected = verify_safety(manifest)
         verify_listener(manifest)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
         parser.error(str(exc))  # no sockets opened on failed safety validation
-    report = run_checks(BridgeClient(retries=0), output, protected)
+    report = run_checks(BridgeClient(retries=0), output, protected, owner_authorized=args.owner_authorized_save_modification)
     path = output / ("battery-" + uuid.uuid4().hex + ".json")
     with path.open("x", encoding="utf-8") as f:
         json.dump(report, f, indent=2)

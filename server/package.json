@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "test": "node test/integration.test.js",
+    "build": "node scripts/check.js"
   },
   "dependencies": {
     "axios": "^1.8.4",
@@ -19,6 +21,6 @@
     "zod-to-json-schema": "^3.24.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }

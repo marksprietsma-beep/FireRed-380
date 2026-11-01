@@ -67,10 +67,15 @@ function reconcileMarkersWithNpcEntries(gameDataJson) {
 
 async function gameLoop() {
     while (true) {
+        if (!require('./supervision').status().active) {
+            await new Promise(resolve => setTimeout(resolve, 250));
+            continue;
+        }
         const loopStartTime = Date.now(); // track per-iteration timing across try/catch/finally
         try {
             // <<< ADDED YIELD >>>
             await new Promise(setImmediate); // Allow event loop processing at the start
+            require('./supervision').beginTurn();
             startLoop(state.counters.currentStep);
             startTimeLoop(state.counters.currentStep);
 
@@ -1109,7 +1114,8 @@ async function gameLoop() {
         } catch (error) {
             console.error("\n--- ERROR IN MAIN LOOP ---");
             console.error(error);
-            console.error("Pausing for 10 seconds before retrying...");
+            require('./supervision').pause();
+            console.error("Paused after failure; operator approval required to resume.");
             const downDuration = Date.now() - loopStartTime;
             recordDownTime(downDuration);
             broadcast({ type: 'error_message', payload: `Main loop error: ${error.message}` }); // <<< Broadcast loop error

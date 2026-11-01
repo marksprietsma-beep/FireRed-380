@@ -740,3 +740,6 @@ input:focus-visible {
     max-height: 400px;
   }
 }
+
+#supervision-panel {padding: 12px; background: #172636; color: #e9f2ff; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;}
+#supervision-panel button {padding: 8px 12px; cursor: pointer;}

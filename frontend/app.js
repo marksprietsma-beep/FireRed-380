@@ -1319,3 +1319,26 @@
 
   bootstrap();
 })();
+
+// FireRed-380 integration: explicit bounded supervision, local service diagnostics.
+window.addEventListener('DOMContentLoaded', () => {
+  const panel = document.createElement('section');
+  panel.id = 'supervision-panel';
+  panel.innerHTML = '<strong>FireRed-380 supervised session</strong> <button id="resume-sequence">Approve up to 10 actions</button> <button id="pause-sequence">Pause / release keys</button> <button id="refresh-observation">Refresh observation</button> <span id="runtime-status">Connecting…</span>';
+  document.body.prepend(panel);
+  async function control(action) {
+    const response = await fetch('/control/' + action, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actions:10})});
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || 'Control request failed');
+  }
+  for (const action of ['resume','pause']) document.querySelector('#' + action + '-sequence').onclick = () =>
+    control(action).catch(error => {document.querySelector('#runtime-status').textContent = error.message;});
+  document.querySelector('#refresh-observation').onclick = () => fetch('/state').then(async r => {if (!r.ok) throw new Error((await r.json()).error);}).catch(error => {document.querySelector('#runtime-status').textContent = error.message;});
+  async function health() {
+    try {
+      const response = await fetch('/health'); const status = await response.json();
+      document.querySelector('#runtime-status').textContent = `${status.provider} / ${status.model} — ${status.supervision.active ? 'approved' : 'paused'} (${status.supervision.remaining} actions left)`;
+    } catch (error) {document.querySelector('#runtime-status').textContent = 'Service unavailable: ' + error.message;}
+  }
+  health(); setInterval(health, 2000);
+});

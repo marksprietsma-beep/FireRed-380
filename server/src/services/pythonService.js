@@ -1,4 +1,6 @@
 const axios = require("axios");
+axios.defaults.timeout = 15000;
+axios.defaults.proxy = false;
 const { config } = require("../config");
 
 function toInt(value, fallback = 0) {
@@ -456,9 +458,22 @@ async function fetchGameData() {
 async function sendCommandsToPythonServer(commands) {
   const url = config.pythonServer.baseUrl + config.pythonServer.endpoints.sendCommands;
   try {
-    const response = await axios.post(url, { commands });
-    return response.data;
+    if (!Array.isArray(commands) || commands.length < 1 || commands.length > 10)
+      throw new Error('Commands must contain 1..10 bounded actions');
+    const supervision = require('../core/supervision');
+    const results = [];
+    let last = {};
+    for (const command of commands) {
+      supervision.consume();
+      const safe = command === 'a_until_end_of_dialog' ? 'a' : command;
+      const response = await axios.post(url, {commands:[safe]});
+      last = response.data;
+      if (!last?.ok || last.results?.some(r => !r.ok)) throw new Error(last?.error || 'Action failed; observe before retrying');
+      results.push(...(last.results || []));
+    }
+    return {...last, results};
   } catch (error) {
+    require('../core/supervision').pause();
     console.error(`Error sending commands to ${url}:`, error.message);
     return { ok: false, error: error.message };
   }
@@ -477,6 +492,7 @@ async function requestConsoleRestart() {
 }
 
 module.exports = {
+  buildGameDataJson,
   getMinimapData,
   fetchMinimapSnapshot,
   fetchGameData,

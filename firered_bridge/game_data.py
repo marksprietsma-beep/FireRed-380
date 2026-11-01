@@ -84,7 +84,7 @@ def load_layout_id_table(force: bool = False) -> Dict[str, int]:
     Load a mapping from layout constant name -> numeric layout id (index in gMapLayouts).
 
     FireRed's gMapHeader.mapLayoutId is a u16 that matches the index in the layouts table.
-    We derive the mapping from the vendored pokefirered `data/layouts/layouts.json`.
+    The factual ID-order table is derived from the pinned reference revision; no submodule is required.
     """
     global _layout_id_table
     if _layout_id_table is not None and not force:
@@ -92,7 +92,7 @@ def load_layout_id_table(force: bool = False) -> Dict[str, int]:
 
     try:
         repo_root = Path(__file__).resolve().parents[1]
-        layouts_path = repo_root / "pokefirered" / "data" / "layouts" / "layouts.json"
+        layouts_path = GAME_DATA_DIR / "layouts.json"
         if not layouts_path.exists():
             _layout_id_table = {}
             return _layout_id_table

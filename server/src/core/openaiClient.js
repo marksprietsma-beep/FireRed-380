@@ -1,10 +1,5 @@
-const OpenAI = require("openai");
-const { config } = require("../config");
-
-const openai = new OpenAI({
-  apiKey: config.openai.apiKey,
-  timeout: config.openai.timeout,
-});
-
+const { config } = require('../config');
+const { createProvider } = require('./provider');
+// Upstream module name retained; all models now use the same local-first facade.
+const openai = createProvider(config.ai);
 module.exports = { openai };
-
