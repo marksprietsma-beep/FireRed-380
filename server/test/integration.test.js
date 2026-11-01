@@ -114,16 +114,21 @@ test('dashboard serves health, static UI and WebSocket while agent stays paused'
   }
 });
 
-test('persistent memory and objectives survive a local session reload',async()=>{
+test('persistent memory and objectives initialise a new nested directory and survive reload',async()=>{
   const fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
   const directory=await fs.mkdtemp(path.join(os.tmpdir(),'firered-memory-fixture-'));
   const previous=process.env.FIRERED_SESSION_DIR;
-  process.env.FIRERED_SESSION_DIR=directory;
+  const sessionDirectory=path.join(directory,'new-session','nested');
+  process.env.FIRERED_SESSION_DIR=sessionDirectory;
   const manager=require('../src/state/stateManager');
   try{
+    await manager.loadPersistentState();
+    assert.ok((await fs.stat(sessionDirectory)).isDirectory());
+    assert.ok(manager.state.progressSteps.length > 0);
     manager.state.memory={fixture:'observed fact'};
     manager.state.objectives={primary:{text:'fixture objective'},secondary:{},third:{},others:[]};
     await manager.savePersistentState();
+    assert.equal(JSON.parse(await fs.readFile(path.join(sessionDirectory,'memory.json'),'utf8')).fixture,'observed fact');
     manager.state.memory={};manager.state.objectives={};
     await manager.loadPersistentState();
     assert.equal(manager.state.memory.fixture,'observed fact');

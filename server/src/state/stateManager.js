@@ -284,7 +284,7 @@ async function loadPersistentState() {
             done: false,
             done_on: null,
           }));
-          await fs.mkdir(path.join(config.paths.baseDir, config.dataDir), { recursive: true });
+          await fs.mkdir(path.resolve(config.paths.baseDir, config.dataDir), { recursive: true });
           await fs.writeFile(config.paths.progressStepsFile, JSON.stringify(initializedSteps, null, 2));
           loadedSteps = initializedSteps;
           console.log(`Progress steps file created for this AI from template: ${config.paths.progressStepsFile}`);
@@ -321,7 +321,7 @@ async function loadPersistentState() {
 
   // Ensure directories exist
   try {
-    const dataDirPath = path.join(config.paths.baseDir, config.dataDir);
+    const dataDirPath = path.resolve(config.paths.baseDir, config.dataDir);
     if (!fsSync.existsSync(dataDirPath)) {
       fsSync.mkdirSync(dataDirPath, { recursive: true });
     }
