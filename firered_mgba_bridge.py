@@ -1336,10 +1336,10 @@ def _send_commands(body: SendCommandsBody) -> Dict[str, Any]:
 
     # Node agent expects {status:boolean, log:string}.
     overall_status = bool(results) and all(bool(step.get("ok")) for step in results)
-    
+
     # Wait 3 seconds
     time.sleep(3)
-    
+
     return {
         "ok": True,
         "status": bool(overall_status),

@@ -860,7 +860,7 @@ async function handleToolCall(toolCall, gameDataJson) {
                     case "delete_marker":
                         const { map_id: del_map_id, x: del_x, y: del_y } = individualAction;
                         const del_markerKey = `${del_x}_${del_y}`;
-                        
+
                         // Check if the player is in a dialog, if so, don't delete the marker
                         if (gameDataJson.is_talking_to_npc) {
                             actionResult.success = false;
@@ -934,7 +934,7 @@ async function handleToolCall(toolCall, gameDataJson) {
 
                         if (path && path.keys && path.keys.length > 0) {
                             pathfindingExecutedThisTurn = true;
-                            
+
                             const gameDataJson = await fetchGameData();
                             let finalKeysList = path.keys;
                             // Check if we are in a dialogue

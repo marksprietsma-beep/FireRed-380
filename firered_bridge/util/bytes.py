@@ -26,5 +26,3 @@ def _s8_from_u8(val: int) -> int:
 
 def _s16_from_u16(val: int) -> int:
     return val - 65536 if val > 32767 else val
-
-

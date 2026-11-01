@@ -640,13 +640,13 @@ function minimapToMarkdown(mm, minimapPlayerX, minimapPlayerY, map_id, map_name,
         out.push(`
 ## Core Requirements
 
-**Mark Defeated Trainers:** 
+**Mark Defeated Trainers:**
 - Always add markers (💀) after trainer battles for progress tracking (Do not add a marker for the rival after you defeated him, because he is not stationary, when you defeat him he moving away from you).
 - The defeated trainer will always be the one in front of you (The one you face after the battle), place the marker on the tile where the trainer is standing.
 
 **🚨 CRITICAL - Entrance/Exit Protocol:**
 1. **Test First:** Attempt to use any door/exit/stairs
-2. **Confirm Connection:** Verify it leads to another location  
+2. **Confirm Connection:** Verify it leads to another location
 3. **🎯 MARK BOTH MAPS IMMEDIATELY:** Place clear markers on BOTH origin and destination - DO NOT SKIP THIS STEP
 4. **Validation Check:** Review action history and delete false markers if uncertain
 5. **VERY IMPORTANT:MARKER PLACEMENT RULE:** Place markers directly ON doors/stairs tile, NOT in front of them. Fix them if you placed them in front of them! Always do a check and a fix before any action. You can't place a door/stairs/ladder marker in a 'Free Ground' tile, you must place it on the door/stairs/ladder tile.
@@ -671,7 +671,7 @@ function minimapToMarkdown(mm, minimapPlayerX, minimapPlayerY, map_id, map_name,
 
 **🚨 EMERGENCY MARKER CHECK:**
 - **Entered building/new area?** → Add markers NOW
-- **Used door/stairs/exit?** → Add markers NOW  
+- **Used door/stairs/exit?** → Add markers NOW
 - **Changed locations?** → Add markers NOW
 
 **📍 Map Change Protocol:**
@@ -782,7 +782,7 @@ Coordinates use *(X,Y)* format where **X increases →** and **Y increases ↓**
 9. **Press "up"** again → avatar to **(16 × 14)**.
 10. **Press "up"** while at **(16 × 14)**
     * Boulder pushed to **(16 × 12)**.
-    * Avatar stays at **(16 × 
+    * Avatar stays at **(16 ×
 11. **Press "left"** → avatar to **(15 × 14)**.
 12. **Press "left"** → avatar to **(14 × 14)**.
 13. **Press "up"** → avatar to **(14 × 13)**.
@@ -803,7 +803,7 @@ Coordinates use *(X,Y)* format where **X increases →** and **Y increases ↓**
 **Final positions:** Avatar at **(17 × 11)**, Boulder at **(17 × 13)** on the switch.
 
 *Summary:* Seven pushes — **right, right, right, up, up, right, down** — with extra walking moves in between to reach the necessary pushing tiles.
-    
+
     `);
         if (!isPathFinding) {
             out.push(`
@@ -852,7 +852,7 @@ State your intention clearly in the 'explanation' field when using the tool. Alw
 - **After reset:** Re-attempt the puzzle to ensure correct positioning
 
 
-**IMPORTANT:** 
+**IMPORTANT:**
 - You must approach the boulder before using the \`path_to_location\` tool. Position yourself within 1 tile distance from the boulder you want to push before invoking the tool.
 - ALWAYS use markers on the holes you have already filled with a boulder (After you have pushed the boulder into the hole), this is important to remember which holes you have already filled without being lost.
                 `);
@@ -860,7 +860,7 @@ State your intention clearly in the 'explanation' field when using the tool. Alw
 
         if (isPathFinding) {
             out.push(`
-                
+
 
 ### Basic Boulder Movement
 You may need to solve puzzles by pushing boulders to specific locations. To push a boulder:
@@ -912,7 +912,7 @@ This map contains **Thin Ice (🧊)** and **Cracked Ice (🧊⚡)** tiles.
 - Some ice puzzles may require specific movement sequences to avoid breaking through
 - For simple traversal, thin ice is passable like normal ground
 
-**Note**: 
+**Note**:
 - This is a crack-and-break mechanic (not continuous sliding).
 - You can use the \`path_to_location\` tool to solve the ice puzzle and pass through the Arrow Floor Down tiles. Simply target the Ice tile immediately after the Arrow Floor Down tile, and the tool will find a path to solve the puzzle and convert the Arrow Floor Down tile to free ground.
 - You must use the \`path_to_location\` tool for each group of 2 "Arrow Floor Down" tiles. Do not attempt to solve 2 puzzles at once! First use the tool to go one tile after the first group of Arrow Floor Down tiles, and then do it again next turn for the second group of Arrow Floor Down tiles etc ...

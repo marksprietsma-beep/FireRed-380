@@ -35,4 +35,3 @@ function calculateRequestCost(usage, modelName, priceConfig, serviceTier) {
 }
 
 module.exports = { calculateRequestCost };
-

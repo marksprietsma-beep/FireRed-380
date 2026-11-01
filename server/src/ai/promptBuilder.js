@@ -80,7 +80,7 @@ function formatRecentMarkers(markers, lastVisitedMaps, isInDialog) {
     return "<markers>No markers set in recently visited maps</markers>\n";
   }
 
-  return `           
+  return `
 <markers>
 Your current markers from recently visited maps:
 ${mapMarkerStrings.join("\n")}

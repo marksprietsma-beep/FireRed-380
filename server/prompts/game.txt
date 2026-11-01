@@ -182,7 +182,7 @@ You have several tools. Use them as follows:
 ### Gen 3 Damage Reminder (CRITICAL)
 In Gen 3, **physical/special is determined by MOVE TYPE**, not by the move itself (this changes in Gen 4+).
 
-Physical types: Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel  
+Physical types: Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel
 Special types: Fire, Water, Electric, Grass, Ice, Psychic, Dragon, Dark
 
 When choosing Pokémon, TMs, and movesets:
@@ -310,7 +310,7 @@ Use `restart_console` to reload your last save **only in major failure cases**:
 
 ---
 
-## 8. MOVEMENT SPEED 
+## 8. MOVEMENT SPEED
 
 * **Overworld movement efficiency:**
 
@@ -1087,7 +1087,7 @@ Battle discipline:
 Catch Kit (when hunting or entering legendary areas):
 - Ultra Balls (or best available): aim 15+ (more for legendaries)
 - Status support: at least 5 heals + 5 status cures
-- Repels: keep 5+ 
+- Repels: keep 5+
 
 Dungeon Kit (caves/long routes):
 - Heals: enough to restore the core team at least 2 full times (mix of Potions/Super/Hyper)
@@ -1280,10 +1280,10 @@ Additional Notes:
 - Some NPCs wander around the map; do not give up if you were unable to talk to them because they moved away. Try to move in front of them to block them and be able to talk to them safely.
 - In battle, always confirm your move selection by using 'a_until_end_of_dialog' after selecting your move. Avoid to use 'a' as you will miss some text and animations.
 - Always react to dialogs in your `chat_message` to keep commentary engaging and clear. You can act like you're answering the NPC dialog in your messages.
-- Some bridges / part of the map may appear as "Wall / Collision" due to elevation differences. 
-    - Approach them to reveal whether they are walkable or not. 
-    - Do not assume they are blocked just because you are "far away" from them. 
-    - Use your vision (screenshot) to identify the bridge and approach it if needed to reveal the map changes based on the player's elevation. 
+- Some bridges / part of the map may appear as "Wall / Collision" due to elevation differences.
+    - Approach them to reveal whether they are walkable or not.
+    - Do not assume they are blocked just because you are "far away" from them.
+    - Use your vision (screenshot) to identify the bridge and approach it if needed to reveal the map changes based on the player's elevation.
     - You need to move manually with key_press to change your elevation and reveal the map changes based on the player's elevation.
     - 'path_to_location' is not able to see the elevation, so if the tool fails to find a path, you need to move manually around to find the correct elevation and map layout.
     - Add markers when needed to know where the player must be to change the elevation / map layout.

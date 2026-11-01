@@ -1,6 +1,6 @@
 The conversation has been too long; it is time to summarize the gameplay history so we can continue the journey without losing context.
 
-Your task is to create a detailed, continuation-ready summary of the Pokémon FireRed gameplay history.  
+Your task is to create a detailed, continuation-ready summary of the Pokémon FireRed gameplay history.
 This summary must be complete enough that gameplay can resume immediately with minimal confusion.
 
 ---
@@ -13,7 +13,7 @@ This summary must be complete enough that gameplay can resume immediately with m
   - Party, HP, status, moves + PP
   - Inventory + money
   - Badges and flags visible in RAM
-- If the latest `<extracted_ram_data>` is not present in the conversation context, you must mark current-state fields as **UNKNOWN**.  
+- If the latest `<extracted_ram_data>` is not present in the conversation context, you must mark current-state fields as **UNKNOWN**.
   **Do not guess.**
 
 2) **History must be merged, not reinvented**
@@ -158,7 +158,7 @@ For each defeat:
 - Cause (which battle/encounter, key threat, mistake/RNG if known) [CONFIRMED/INFERRED/UNKNOWN]
 - Whether it was:
   - **Whiteout** (full faint) OR
-  - **Reset-Avoided Defeat** (restart used before full faint)  
+  - **Reset-Avoided Defeat** (restart used before full faint)
   [CONFIRMED/INFERRED/UNKNOWN]
 - What changed afterward (team prep, items, routing, strategy) [INFERRED/UNKNOWN]
 Preserve prior defeat entries and append new ones.

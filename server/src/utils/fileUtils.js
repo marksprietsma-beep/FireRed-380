@@ -14,4 +14,3 @@ async function readImageAsBase64(relativePath) {
 }
 
 module.exports = { readImageAsBase64 };
-

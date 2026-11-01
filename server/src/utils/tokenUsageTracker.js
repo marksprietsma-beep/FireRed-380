@@ -208,4 +208,3 @@ module.exports = {
   flush,
   getCumulativeTotals,
 };
-

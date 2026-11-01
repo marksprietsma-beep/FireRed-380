@@ -109,4 +109,3 @@ class SnapshotMemoryReader:
     def read_bytes(self, addr: int, size: int) -> bytes:
         seg, off = self._segment_for(addr, size)
         return bytes(seg.data[off : off + int(size)])
-

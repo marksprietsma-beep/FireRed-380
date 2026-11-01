@@ -154,4 +154,3 @@ function processHistoryForAPI(currentHistory) {
 }
 
 module.exports = { cleanTextSections, processHistoryForAPI };
-

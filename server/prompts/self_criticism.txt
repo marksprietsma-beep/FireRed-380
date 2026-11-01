@@ -515,7 +515,7 @@ Only mark something as a real time optimization error when it clearly caused not
 
 ---
 
-# 🧠 BATTLE / MOVESET QUALITY 
+# 🧠 BATTLE / MOVESET QUALITY
 
 ### Gen 3 Damage Split Check
 In Gen 3, physical/special depends on TYPE (not by individual move like Gen 4+).

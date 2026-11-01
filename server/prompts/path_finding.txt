@@ -396,7 +396,7 @@ Apply in this order:
 
 
 
-Notes: 
+Notes:
 - Always check for the tree, boulder, NPC, teleporter, door, etc. and handle them properly. Don't ignore them when you don't have a valid path with your code.
 - If your final path includes walking/surfing on unknown tiles (❓), warn the user in your <pathfinding_analysis> tag that the path may not lead to the target if hidden collisions exist within those tiles. This is acceptable—the user will discover obstacles by attempting to walk through them. If the generated path proves invalid due to collisions hidden behind unknown tiles, advise the user to call the 'path_to_location' tool again after the obstacles are revealed.
 

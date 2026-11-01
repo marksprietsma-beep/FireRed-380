@@ -9,7 +9,7 @@ Use is personal and non-commercial, as authorised by the owner. Preserve CC BY-N
 4.0 attribution; the original licence is `third_party/upstream/LICENSE`.
 `third_party/upstream/manifest.json` records all 72 imported source/reference files
 and their original SHA-256 values. Differences from those hashes identify local
-modifications; Git records the import and subsequent integration separately.
+modifications, including whitespace-only normalisation; Git records the import and subsequent integration separately.
 
 | Component | Integrated location and connection |
 | --- | --- |

@@ -50,4 +50,3 @@ from .ui.menus import *  # noqa: F403
 
 # Top-level state builders
 from .state.builders import build_full_state, build_input_trace_state, update_fog_of_war_for_current_map
-
