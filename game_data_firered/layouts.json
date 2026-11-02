@@ -1,0 +1,1153 @@
+{
+  "layouts": [
+    {
+      "id": "LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_1F"
+    },
+    {
+      "id": "LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_2F"
+    },
+    {
+      "id": "LAYOUT_PALLET_TOWN_RIVALS_HOUSE"
+    },
+    {
+      "id": "LAYOUT_LITTLEROOT_TOWN_MAYS_HOUSE_2F"
+    },
+    {
+      "id": "LAYOUT_PALLET_TOWN_PROFESSOR_OAKS_LAB"
+    },
+    {
+      "id": "LAYOUT_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_POKEMON_CENTER_1F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_CENTER_2F"
+    },
+    {
+      "id": "LAYOUT_MART"
+    },
+    {
+      "id": "LAYOUT_HOUSE3"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY_GYM"
+    },
+    {
+      "id": "LAYOUT_HOUSE4"
+    },
+    {
+      "id": "LAYOUT_LAVARIDGE_TOWN_HERB_SHOP"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_GYM"
+    },
+    {
+      "id": "LAYOUT_RS_POKEMON_CENTER_1F"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_RESORT_GORGEOUS_HOUSE"
+    },
+    {
+      "id": "LAYOUT_PACIFIDLOG_TOWN_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_PACIFIDLOG_TOWN_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY_GYM"
+    },
+    {
+      "id": "LAYOUT_HOUSE5"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_UNUSED1"
+    },
+    {
+      "id": "LAYOUT_VERMILION_CITY_GYM"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY_BIKE_SHOP"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_GAME_CORNER"
+    },
+    {
+      "id": "LAYOUT_PEWTER_CITY_GYM"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_LORELEIS_HOUSE"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_CUTTERS_HOUSE"
+    },
+    {
+      "id": "LAYOUT_FORTREE_CITY_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_GYM"
+    },
+    {
+      "id": "LAYOUT_FORTREE_CITY_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND_GYM"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_CITY_GYM"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_RS_SAFARI_ZONE_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_BATTLE_COLOSSEUM_2P"
+    },
+    {
+      "id": "LAYOUT_TRADE_CENTER"
+    },
+    {
+      "id": "LAYOUT_RECORD_CORNER"
+    },
+    {
+      "id": "LAYOUT_BATTLE_COLOSSEUM_4P"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_RS_SAFARI_ZONE_NORTHEAST"
+    },
+    {
+      "id": "LAYOUT_RS_SAFARI_ZONE_SOUTHWEST"
+    },
+    {
+      "id": "LAYOUT_RS_SAFARI_ZONE_SOUTHEAST"
+    },
+    {
+      "id": "LAYOUT_FORTREE_CITY_DECORATION_SHOP"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_RS_BATTLE_TOWER"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_SS_TIDAL_CORRIDOR"
+    },
+    {
+      "id": "LAYOUT_SS_TIDAL_LOWER_DECK"
+    },
+    {
+      "id": "LAYOUT_SS_TIDAL_ROOMS"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_FLAT2_1F"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_FLAT2_2F"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_FLAT2_3F"
+    },
+    {
+      "id": "LAYOUT_EVER_GRANDE_CITY_HALL_OF_FAME"
+    },
+    {
+      "id": "LAYOUT_MOSSDEEP_CITY_EREADER_TRAINER_HOUSE_1F"
+    },
+    {
+      "id": "LAYOUT_MOSSDEEP_CITY_EREADER_TRAINER_HOUSE_2F"
+    },
+    {
+      "id": "LAYOUT_SOOTOPOLIS_CITY_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_SOOTOPOLIS_CITY_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_SOOTOPOLIS_CITY_HOUSE3"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_FLAT1_1F"
+    },
+    {
+      "id": "LAYOUT_RUSTBORO_CITY_FLAT1_2F"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_RS_SAFARI_ZONE_REST_HOUSE"
+    },
+    {
+      "id": "LAYOUT_PALLET_TOWN"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_CITY"
+    },
+    {
+      "id": "LAYOUT_PEWTER_CITY"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY"
+    },
+    {
+      "id": "LAYOUT_LAVENDER_TOWN"
+    },
+    {
+      "id": "LAYOUT_VERMILION_CITY"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND"
+    },
+    {
+      "id": "LAYOUT_INDIGO_PLATEAU_EXTERIOR"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_CONNECTION"
+    },
+    {
+      "id": "LAYOUT_ROUTE1"
+    },
+    {
+      "id": "LAYOUT_ROUTE2"
+    },
+    {
+      "id": "LAYOUT_ROUTE3"
+    },
+    {
+      "id": "LAYOUT_ROUTE4"
+    },
+    {
+      "id": "LAYOUT_ROUTE5"
+    },
+    {
+      "id": "LAYOUT_ROUTE6"
+    },
+    {
+      "id": "LAYOUT_ROUTE7"
+    },
+    {
+      "id": "LAYOUT_ROUTE8"
+    },
+    {
+      "id": "LAYOUT_ROUTE9"
+    },
+    {
+      "id": "LAYOUT_ROUTE10"
+    },
+    {
+      "id": "LAYOUT_ROUTE11"
+    },
+    {
+      "id": "LAYOUT_ROUTE12"
+    },
+    {
+      "id": "LAYOUT_ROUTE13"
+    },
+    {
+      "id": "LAYOUT_ROUTE14"
+    },
+    {
+      "id": "LAYOUT_ROUTE15"
+    },
+    {
+      "id": "LAYOUT_ROUTE16"
+    },
+    {
+      "id": "LAYOUT_ROUTE17"
+    },
+    {
+      "id": "LAYOUT_ROUTE18"
+    },
+    {
+      "id": "LAYOUT_ROUTE19"
+    },
+    {
+      "id": "LAYOUT_ROUTE20"
+    },
+    {
+      "id": "LAYOUT_ROUTE21_NORTH"
+    },
+    {
+      "id": "LAYOUT_ROUTE22"
+    },
+    {
+      "id": "LAYOUT_ROUTE23"
+    },
+    {
+      "id": "LAYOUT_ROUTE24"
+    },
+    {
+      "id": "LAYOUT_ROUTE25"
+    },
+    {
+      "id": "LAYOUT_MT_MOON_1F"
+    },
+    {
+      "id": "LAYOUT_MT_MOON_B1F"
+    },
+    {
+      "id": "LAYOUT_MT_MOON_B2F"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_FOREST"
+    },
+    {
+      "id": "LAYOUT_SSANNE_EXTERIOR"
+    },
+    {
+      "id": "LAYOUT_SSANNE_1F_CORRIDOR"
+    },
+    {
+      "id": "LAYOUT_SSANNE_2F_CORRIDOR"
+    },
+    {
+      "id": "LAYOUT_SSANNE_3F_CORRIDOR"
+    },
+    {
+      "id": "LAYOUT_SSANNE_B1F_CORRIDOR"
+    },
+    {
+      "id": "LAYOUT_SSANNE_DECK"
+    },
+    {
+      "id": "LAYOUT_DIGLETTS_CAVE_B1F"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_1F"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_2F"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_3F"
+    },
+    {
+      "id": "LAYOUT_ROCKET_HIDEOUT_B1F"
+    },
+    {
+      "id": "LAYOUT_ROCKET_HIDEOUT_B2F"
+    },
+    {
+      "id": "LAYOUT_ROCKET_HIDEOUT_B3F"
+    },
+    {
+      "id": "LAYOUT_ROCKET_HIDEOUT_B4F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_1F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_2F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_3F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_4F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_5F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_6F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_7F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_8F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_9F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_10F"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_11F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_MANSION_1F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_MANSION_2F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_MANSION_3F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_MANSION_B1F"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_CENTER"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_EAST"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_NORTH"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_WEST"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE_1F"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE_2F"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE_B1F"
+    },
+    {
+      "id": "LAYOUT_ROCK_TUNNEL_1F"
+    },
+    {
+      "id": "LAYOUT_ROCK_TUNNEL_B1F"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_1F"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B1F"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B2F"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B3F"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B4F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_1F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_2F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_3F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_4F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_5F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_6F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_TOWER_7F"
+    },
+    {
+      "id": "LAYOUT_POWER_PLANT"
+    },
+    {
+      "id": "LAYOUT_ROUTE25_SEA_COTTAGE"
+    },
+    {
+      "id": "LAYOUT_SSANNE_KITCHEN"
+    },
+    {
+      "id": "LAYOUT_SSANNE_CAPTAINS_OFFICE"
+    },
+    {
+      "id": "LAYOUT_UNDERGROUND_PATH_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_UNDERGROUND_PATH_EAST_WEST_TUNNEL"
+    },
+    {
+      "id": "LAYOUT_UNDERGROUND_PATH_NORTH_SOUTH_TUNNEL"
+    },
+    {
+      "id": null
+    },
+    {
+      "id": "LAYOUT_ROUTE12_NORTH_ENTRANCE_1F"
+    },
+    {
+      "id": "LAYOUT_SSANNE_ROOM1"
+    },
+    {
+      "id": "LAYOUT_SSANNE_ROOM2"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_ELEVATOR"
+    },
+    {
+      "id": "LAYOUT_PEWTER_CITY_MUSEUM_1F"
+    },
+    {
+      "id": "LAYOUT_PEWTER_CITY_MUSEUM_2F"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY_HOUSE1"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_CONDOMINIUMS_1F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_CONDOMINIUMS_2F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_CONDOMINIUMS_3F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_CONDOMINIUMS_ROOF"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_CONDOMINIUMS_ROOF_ROOM"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_GAME_CORNER_PRIZE_ROOM"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_RESTAURANT"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_HOTEL"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_1F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_2F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_3F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_4F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_5F"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_DEPARTMENT_STORE_ROOF"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_REST_HOUSE"
+    },
+    {
+      "id": "LAYOUT_SAFARI_ZONE_SECRET_HOUSE"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY_SAFARI_ZONE_OFFICE"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY_WARDENS_HOUSE"
+    },
+    {
+      "id": "LAYOUT_FUCHSIA_CITY_HOUSE2"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_LOUNGE"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_RESEARCH_ROOM"
+    },
+    {
+      "id": "LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_EAST_WEST_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_DIGLETTS_CAVE_NORTH_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_DIGLETTS_CAVE_SOUTH_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_INDIGO_PLATEAU_POKEMON_CENTER_1F"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_LORELEIS_ROOM"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_BRUNOS_ROOM"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_AGATHAS_ROOM"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_LANCES_ROOM"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_CHAMPIONS_ROOM"
+    },
+    {
+      "id": "LAYOUT_POKEMON_LEAGUE_HALL_OF_FAME"
+    },
+    {
+      "id": "LAYOUT_ROUTE21_SOUTH"
+    },
+    {
+      "id": "LAYOUT_ENTRANCE_2F"
+    },
+    {
+      "id": "LAYOUT_ROUTE2_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_ROUTE22_NORTH_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_ROUTE16_NORTH_ENTRANCE_1F"
+    },
+    {
+      "id": "LAYOUT_ENTRANCE_1F"
+    },
+    {
+      "id": "LAYOUT_ROCKET_HIDEOUT_ELEVATOR"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_COPYCATS_HOUSE_1F"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_COPYCATS_HOUSE_2F"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_DOJO"
+    },
+    {
+      "id": "LAYOUT_SILPH_CO_ELEVATOR"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND"
+    },
+    {
+      "id": "LAYOUT_TWO_ISLAND"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND_KINDLE_ROAD"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND_TREASURE_BEACH"
+    },
+    {
+      "id": "LAYOUT_TWO_ISLAND_CAPE_BRINK"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_BOND_BRIDGE"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_PORT"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_6"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_7"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_8"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_9"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_RESORT_GORGEOUS"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_WATER_LABYRINTH"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_MEADOW"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_MEMORIAL_PILLAR"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_OUTCAST_ISLAND"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_GREEN_PATH"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_WATER_PATH"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_RUIN_VALLEY"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TRAINER_TOWER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_22"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_23_EAST"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_23_WEST"
+    },
+    {
+      "id": "LAYOUT_PROTOTYPE_SEVII_ISLE_24"
+    },
+    {
+      "id": "LAYOUT_UNION_ROOM"
+    },
+    {
+      "id": "LAYOUT_SAFFRON_CITY_POKEMON_TRAINER_FAN_CLUB"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_HOUSE_ROOM1_DOOR_OPEN"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_HOUSE_ROOM2"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_CITY_SCHOOL"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_RESTAURANT_DUPLICATE"
+    },
+    {
+      "id": "LAYOUT_CELADON_CITY_HOTEL_DUPLICATE"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B4F"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_BERRY_FOREST"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND_POKEMON_CENTER_1F"
+    },
+    {
+      "id": "LAYOUT_TWO_ISLAND_JOYFUL_GAME_CORNER"
+    },
+    {
+      "id": "LAYOUT_VERMILION_CITY_POKEMON_FAN_CLUB"
+    },
+    {
+      "id": "LAYOUT_LAVENDER_TOWN_VOLUNTEER_POKEMON_HOUSE"
+    },
+    {
+      "id": "LAYOUT_ROUTE5_POKEMON_DAY_CARE"
+    },
+    {
+      "id": "LAYOUT_VIRIDIAN_CITY_HOUSE"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_POKEMON_DAY_CARE"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B3F_CURRENT_STOPPED"
+    },
+    {
+      "id": "LAYOUT_SEAFOAM_ISLANDS_B4F_CURRENT_STOPPED"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_EXTERIOR"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_SUMMIT"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_SUMMIT_PATH_1F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_SUMMIT_PATH_2F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_SUMMIT_PATH_3F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_1F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B1F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B2F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B3F"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B1F_STAIRS"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B2F_STAIRS"
+    },
+    {
+      "id": "LAYOUT_MT_EMBER_RUBY_PATH_B5F"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_ROCKET_WAREHOUSE"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_1F"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_B1F"
+    },
+    {
+      "id": "LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_BACK"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_LOBBY"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_1F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_2F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_3F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_4F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_5F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_6F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_7F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_8F"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_ROOF"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_ELEVATOR"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CITY_HOUSE5"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_1F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_B1F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_B2F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_B3F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_B4F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_DOTTED_HOLE_SAPPHIRE_ROOM"
+    },
+    {
+      "id": "LAYOUT_ISLAND_HARBOR"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND_POKEMON_CENTER_2F"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_PATTERN_BUSH"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_DUNSPARCE_TUNNEL"
+    },
+    {
+      "id": "LAYOUT_THREE_ISLAND_DUNSPARCE_TUNNEL_DUG_OUT"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ENTRANCE"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM1"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM2"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM3"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM4"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM5"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM6"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM7"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM8"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM9"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM10"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM11"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM12"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM13"
+    },
+    {
+      "id": "LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM14"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_MONEAN_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_LIPTOO_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_WEEPTH_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_DILFORD_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_SCUFIB_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SIX_ISLAND_ALTERING_CAVE"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY"
+    },
+    {
+      "id": "LAYOUT_BIRTH_ISLAND_EXTERIOR"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_EXTERIOR"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_1F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_SUMMIT"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_SUMMIT_PATH_2F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_SUMMIT_PATH_3F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_SUMMIT_PATH_4F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_SUMMIT_PATH_5F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B1F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B2F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B3F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B4F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B5F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B6F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B7F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B8F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B9F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B10F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_BASE_PATH_B11F"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_RIXY_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_VIAPOIS_CHAMBER"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_B1F"
+    },
+    {
+      "id": "LAYOUT_NAVEL_ROCK_FORK"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_1F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_2F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_3F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_4F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_5F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_6F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_7F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_8F_DOUBLES"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_1F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_2F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_3F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_4F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_5F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_6F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_7F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_TRAINER_TOWER_8F_KNOCKOUT"
+    },
+    {
+      "id": "LAYOUT_SEVEN_ISLAND_HOUSE_ROOM1"
+    },
+    {
+      "id": "LAYOUT_ONE_ISLAND_KINDLE_ROAD_EMBER_SPA"
+    }
+  ]
+}

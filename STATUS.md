@@ -1,68 +1,29 @@
-# FireRed-380 — status
+# FireRed-380 — current status
 
-**Last source-state audit:** 2026-11-01, approximately 17:53 CST  
-**Repository:** public GitHub repository; source and documentation only  
-**Project:** supervised Pokémon FireRed agent
+**2026-11-01: full upstream integration candidate, awaiting review and Windows verification.**
 
-## Current state
+| Area | Implemented / evidence |
+| --- | --- |
+| Source | Upstream 9619b101d607ee79b68e1274174ac3b6eeb6ff06 imported with licence, original-file hashes and modification/provenance report |
+| Transport | Existing hardened 0.3.1 Lua/Python layer remains the only emulator transport; upstream adapter uses it exclusively |
+| Python | Memory/symbols, state, player/party/PC/bag/save, text, UI, map/collision/events/viewport and FastAPI connected |
+| Node/dashboard | Local-first Ollama-compatible agent, prompts, summaries, objectives/progress, persistent sessions, local HTTP/WebSocket dashboard |
+| Supervision | Starts paused; explicit approval; ten-action budget; one action per observation; cleanup and failure pause |
+| Policies | Protected mode default; explicit Squirrels-only owner mode verifies exact path and both ROM hashes, reports S1/S2 OWNER-WAIVED, keeps S3 mandatory |
+| Offline tests | 72 Python tests (including 27 real-Lua mock scenarios), 19 Node tests; syntax/build checks passed; no failures or skips |
+| Live emulator | **NOT RUN**; no mGBA launch, local-computer access or ROM/save/savestate reads/modifications in this task |
+| Historical battery | v0.2 **5/8**, report preserved; no new live pass claimed |
 
-| Area | Status | Evidence |
-|---|---|---|
-| Phase 0 — project/reuse audit | Complete | `workspace/docs/REUSE_AUDIT.md` |
-| Lua bridge v0.1 | Historical reference only | Archived under `workspace/archive/legacy/`; do not load |
-| Lua bridge v0.2 | Live-tested once | Battery 5/8; T5 failed |
-| Lua bridge v0.3 | Written, not live-tested | Contains proposed T5 two-phase release fix and additional commands |
-| Python TCP client | Written; T8 fix unverified | `workspace/src/bridge_client.py` |
-| Battery test | Written; T7 logging improved | `workspace/tests/test_bridge_battery.py` |
-| Last recorded battery | 5/8 | `workspace/state/battery_report.json` (pre-fix v0.2 run) |
-| Python API/controller on :8000 | Not started | Planned Phase 2 |
-| LLM supervisor | Not started | Planned Phase 3 |
-| Supervised gameplay | Not started | Planned Phase 4 |
+The earlier audit-only/Phase-2 restriction was superseded by the owner's explicit
+full-integration task. This authorises implementation, not live or unattended play
+in this cloud session. No PR merge is authorised. Keep PR #1 a draft.
 
-At the last recorded machine audit, mGBA was not running and ports 8888/8000 were not listening. Ollama 0.40.13 and `qwen3.8:27b` were reported running at that time. Re-check the actual local machine before relying on any runtime state.
+Remaining: verify Windows scripts, actual mGBA scheduling, ROM/symbol alignment,
+input-pulse calibration, model availability/tool competence and real UI states.
+Local pathfinding deliberately refuses special/unknown terrain. Hosted code
+execution, automatic backup creation/pruning and reset are excluded. See
+`UPSTREAM_INTEGRATION.md` for exact scope and limitations.
 
-## Critical save-integrity issue
-
-The later disk audit found `Pokemon - FireRed Version.sav`, 131,072 bytes, created during the mGBA relaunch window. Its SHA-256 was identical to the three backups of the protected Squirrels save. The writer was not established.
-
-This supersedes the earlier claim that the test ROM had no `.sav` sidecar. **Save isolation is not proven. Do not start gameplay or advance the game until a separate disposable save path is configured and verified.** The original save and backups must remain untouched.
-
-## Bridge battery — last verified run
-
-The 2026-11-01 16:16:21 battery run was against v0.2:
-
-| Test | Result | Detail |
-|---|---|---|
-| T1 ping/pong | PASS | `pong` |
-| T2 frame counter | PASS | Increased between calls |
-| T3 memory reads | PASS | 8/16/32-bit and range reads returned values |
-| T4 screenshot | PASS | 240×160 PNG |
-| T5 timed key press/release | FAIL | A remained pressed after the hold window |
-| T6 clear-all interruption | PASS | `clearAll` released active keys |
-| T7 connection stability | FAIL | 1 failure in 30 fresh-connection pings |
-| T8 multi-command framing | FAIL | Python client type error in `call_raw` |
-
-**The fixes for T5, T7 and T8 are present in the files but have not been verified.** Phase 1 is not complete until the full battery passes 8/8.
-
-## Repository contents
-
-- `workspace/src/FireRedBridgeSocketServer_v0.3.lua` — intended candidate bridge.
-- `workspace/src/FireRedBridgeSocketServer_v0.2_fixed.lua` — historical live-tested bridge.
-- `workspace/src/bridge_client.py` — TCP client for port 8888.
-- `workspace/tests/test_bridge_battery.py` — T1–T8 live battery.
-- `workspace/tools/` — Windows menu helpers.
-- `workspace/docs/` — architecture, plan, audit, risks and test protocol.
-- `instructions/FIRERED_POKEDEX_AGENT_SPEC.md` — full project specification.
-
-ROMs, `.sav` files, backups, `.mgbs` savestates, screenshots and Python bytecode were deliberately excluded from this public repository.
-
-## Next steps
-
-1. Complete the static audit in `CODEX_START_HERE.md`.
-2. Resolve and verify save isolation locally before any gameplay or controller input.
-3. On the Windows/mGBA setup, load v0.3 and verify the bridge version and loopback listener.
-4. Re-run the battery and achieve 8/8. Investigate any failing test from captured evidence.
-5. Only then begin Phase 2: the Python controller/API on port 8000.
-6. Implement the supervised LLM loop only after the API is tested.
-
-Do not claim success based on code inspection alone.
+Next: review the diff/provenance, then perform the documented local Windows
+verification under the selected policy. Do not treat fixture passes as emulator
+or Pokédex-progress evidence. No trading or 380-species completion is claimed.

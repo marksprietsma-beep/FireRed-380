@@ -5,20 +5,36 @@ Protocol (matches FireRedBridgeSocketServer_v0.2_fixed.lua and v0.3):
     reply   : "<payload><|END|>"            (payload starts with "<|ERROR|>" on failure)
 
 Binds to localhost only; the bridge is 127.0.0.1:8888 by design.
-No third-party dependencies (stdlib only, Python 3.14).
+No third-party dependencies (Python 3.10+). UTF-8, quoted CSV arguments.
 """
 from __future__ import annotations
 
+import csv
+import io
+import math
+import re
 import socket
 import time
 
 END_MARKER = "<|END|>"
 OK_PREFIX = "<|OK|>"
 ERR_PREFIX = "<|ERROR|>"
+BRIDGE_VERSION = "0.3.1"
+MAX_HOLD_FRAMES = 300
+MAX_MESSAGE_BYTES = 131072
+READ_ONLY = frozenset({
+    "bridge.ping", "bridge.version", "bridge.info", "bridge.outputDir",
+    "bridge.frame", "bridge.read8", "bridge.read16", "bridge.read32",
+    "bridge.readRangeHex", "bridge.keys",
+})
 
 
 class BridgeError(RuntimeError):
     """Raised when the bridge is unreachable or a call keeps failing."""
+
+
+class BridgeUncertainError(BridgeError):
+    """A mutating request may have executed. Observe state; do not replay it."""
 
 
 class BridgeErrorResponse(BridgeError):
@@ -39,68 +55,121 @@ class BridgeClient:
         retries: int = 2,
         retry_delay: float = 0.4,
     ) -> None:
-        self.host = host
-        self.port = port
-        self.timeout = timeout
-        self.retries = retries
-        self.retry_delay = retry_delay
+        if host != "127.0.0.1":
+            raise ValueError("bridge host must be 127.0.0.1")
+        if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
+            raise ValueError("invalid port")
+        if not math.isfinite(timeout) or timeout <= 0:
+            raise ValueError("timeout must be finite and positive")
+        if not isinstance(retries, int) or isinstance(retries, bool) or retries < 0:
+            raise ValueError("retries must be a nonnegative integer")
+        if not math.isfinite(retry_delay) or retry_delay < 0:
+            raise ValueError("retry_delay must be finite and nonnegative")
+        self.host, self.port = host, port
+        self.timeout, self.retries, self.retry_delay = timeout, retries, retry_delay
 
-    # ---------- core ----------
-    def call(self, cmd: str, *args: object) -> str:
-        """Send one command, return the decoded payload (marker stripped).
+    @staticmethod
+    def serialize(cmd: str, *args: object) -> str:
+        """CSV quoting preserves commas, apostrophes, quotes and path spaces.
 
-        Raises BridgeErrorResponse for <ERROR> payloads, BridgeError for
-        transport failures after exhausting retries.
+        Markers/control characters are rejected rather than escaped: the outer
+        framing layer processes markers before parsing CSV. Quotes are doubled.
         """
-        request = ",".join([cmd, *(str(a) for a in args)]) + END_MARKER
-        last_error: Exception | None = None
-        for attempt in range(self.retries + 1):
-            sock = None
-            try:
-                sock = socket.create_connection((self.host, self.port), timeout=self.timeout)
-                sock.settimeout(self.timeout)
-                sock.sendall(request.encode("latin1"))
-                buf = b""
-                marker = END_MARKER.encode("latin1")
-                while marker not in buf:
-                    chunk = sock.recv(4096)
-                    if not chunk:
-                        raise BridgeError("connection closed before END marker")
-                    buf += chunk
-                payload = buf.split(marker, 1)[0].decode("latin1", "replace").strip()
-                if payload.startswith(ERR_PREFIX):
-                    raise BridgeErrorResponse(cmd, payload)
-                return payload
-            except (BridgeErrorResponse, BridgeError):
-                raise
-            except OSError as exc:
-                last_error = exc
-                time.sleep(self.retry_delay)
-        raise BridgeError(f"bridge call failed after {self.retries + 1} attempts: {last_error}")
+        if not re.fullmatch(r"bridge\.[A-Za-z][A-Za-z0-9]*", cmd):
+            raise ValueError("invalid command")
+        fields = [cmd, *(str(arg) for arg in args)]
+        if any(END_MARKER in value or any(ord(c) < 32 or ord(c) == 127 for c in value)
+               for value in fields):
+            raise ValueError("framing markers and control characters are forbidden")
+        out = io.StringIO()
+        csv.writer(out, lineterminator="", quoting=csv.QUOTE_ALL).writerow(fields[1:])
+        # Keep the command unquoted for compatibility with the existing parser.
+        return cmd + ("," + out.getvalue() if args else "")
 
-    def call_raw(self, raw_requests: list[str]) -> list[str]:
-        """Send multiple framed requests and read back matching replies (B3 test).
-
-        `raw_requests` elements must NOT include the END marker.
-        """
-        marker = END_MARKER.encode("latin1")
-        stream = "".join(r + END_MARKER for r in raw_requests).encode("latin1")
-        sock = socket.create_connection((self.host, self.port), timeout=self.timeout)
+    def _exchange(self, requests: list[str], mutating: bool) -> list[str]:
+        stream = (END_MARKER.join(requests) + END_MARKER).encode("utf-8")
+        if len(stream) > MAX_MESSAGE_BYTES:
+            raise ValueError("request exceeds message limit")
+        deadline = time.monotonic() + self.timeout
+        sock = None
+        sending = False
         try:
-            sock.settimeout(self.timeout)
+            sock = socket.create_connection((self.host, self.port), timeout=self.timeout)
+            def remaining() -> float:
+                value = deadline - time.monotonic()
+                if value <= 0:
+                    raise TimeoutError("total request deadline exceeded")
+                return value
+            sock.settimeout(remaining())
+            sending = True  # sendall may fail after writing some/all bytes
             sock.sendall(stream)
             buf = b""
-            replies: list[str] = []
-            while len(replies) < len(raw_requests):
-                buf += sock.recv(4096)
+            received = 0
+            replies = []
+            marker = END_MARKER.encode("ascii")
+            while len(replies) < len(requests):
+                sock.settimeout(remaining())
+                chunk = sock.recv(4096)
+                if not chunk:
+                    raise BridgeError("connection closed before all replies arrived")
+                received += len(chunk)
+                if received > MAX_MESSAGE_BYTES:
+                    raise BridgeError("response exceeds message limit")
+                buf += chunk
                 while marker in buf:
-                    head, buf = buf.split(marker, 1)
-                    replies.append(head.decode("latin1", "replace").strip())
-                    if len(replies) >= len(raw_requests):
-                        break
+                    payload, buf = buf.split(marker, 1)
+                    replies.append(payload.decode("utf-8", "strict").strip())
+                if len(replies) > len(requests) or (len(replies) == len(requests) and buf):
+                    raise BridgeError("unexpected trailing response data")
             return replies
+        except (OSError, UnicodeError, BridgeError) as exc:
+            if mutating and sending:
+                raise BridgeUncertainError(
+                    "request may have executed; automatic replay disabled: " + str(exc)
+                ) from exc
+            raise BridgeError(str(exc)) from exc
         finally:
-            sock.close()
+            if sock is not None:
+                sock.close()
+
+    def call(self, cmd: str, *args: object) -> str:
+        request = self.serialize(cmd, *args)
+        read_only = cmd in READ_ONLY
+        for attempt in range((self.retries if read_only else 0) + 1):
+            try:
+                payload = self._exchange([request], mutating=not read_only)[0]
+            except BridgeUncertainError:
+                raise
+            except BridgeError:
+                if not read_only or attempt == self.retries:
+                    raise
+                time.sleep(self.retry_delay)
+                continue
+            if payload.startswith(ERR_PREFIX):
+                raise BridgeErrorResponse(cmd, payload)
+            return payload
+        raise AssertionError("unreachable")
+
+    def call_raw(self, raw_requests: list[str]) -> list[str]:
+        """Send already serialized commands once; no batch is ever replayed.
+
+        Use serialize() to construct arguments. Raw requests must exclude the
+        framing marker. Per-command error replies are returned in order so a
+        caller can inspect the complete batch (unlike call(), which raises).
+        """
+        if not raw_requests:
+            return []
+        commands = []
+        for request in raw_requests:
+            if not isinstance(request, str) or END_MARKER in request or any(
+                ord(c) < 32 or ord(c) == 127 for c in request
+            ):
+                raise ValueError("invalid raw request")
+            cmd = request.split(",", 1)[0].split(" ", 1)[0]
+            if not re.fullmatch(r"bridge\.[A-Za-z][A-Za-z0-9]*", cmd):
+                raise ValueError("invalid raw command")
+            commands.append(cmd)
+        return self._exchange(raw_requests, mutating=any(c not in READ_ONLY for c in commands))
 
     # ---------- named commands ----------
     def ping(self) -> str:
@@ -135,6 +204,9 @@ class BridgeClient:
 
     def hold_keys(self, keys: str | list[str], frames: int | None = None) -> str:
         """Discrete press. `keys` like "A" or "Up;Down". frames optional (default 12 in bridge)."""
+        if frames is not None and (isinstance(frames, bool) or not isinstance(frames, int)
+                                   or not 1 <= frames <= MAX_HOLD_FRAMES):
+            raise ValueError(f"frames must be an integer in 1..{MAX_HOLD_FRAMES}")
         spec = keys if isinstance(keys, str) else ";".join(keys)
         if frames is None:
             return self.call("bridge.holdKeys", spec)
@@ -148,3 +220,15 @@ class BridgeClient:
 
     def save_state_file(self, path: str) -> str:
         return self.call("bridge.saveStateFile", path)
+
+    def version(self) -> str:
+        return self.call("bridge.version")
+
+    def info(self) -> str:
+        return self.call("bridge.info")
+
+    def load_state_file(self, path: str) -> str:
+        return self.call("bridge.loadStateFile", path)
+
+    def shutdown(self) -> str:
+        return self.call("bridge.shutdown")

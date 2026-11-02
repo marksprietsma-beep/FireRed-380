@@ -1,61 +1,50 @@
-# FireRed-380 — resume / recovery notes
+# Resume / operational hand-off
 
-This file is the operational hand-off. Start with `README.md` and `STATUS.md`; use `CODEX_START_HERE.md` for the first Codex task.
+Read `README.md`, `STATUS.md`, `UPSTREAM_INTEGRATION.md` and
+`THIRD_PARTY_NOTICES.md` first. The current branch is `codex/bridge-hardening`;
+PR #1 must remain a draft and must not be merged without owner direction.
 
-## One-paragraph state
+The owner explicitly authorised the pinned full application integration after the
+bridge audit/hardening tasks. The API/agent/dashboard now exist; older statements
+that they were unimplemented describe the imported historical checkpoint.
 
-The project audit is complete. The mGBA Lua bridge has three generations: v0.2 was live-tested and passed 5/8 checks; v0.3 contains the proposed timed-key release fix but was never loaded or tested. The Python client and test changes for T8/T7 are also unverified. The API/controller on port 8000 and the LLM supervisor do not exist yet. At the last machine audit, mGBA was closed and ports 8888/8000 were down. Most importantly, a `.sav` sidecar appeared beside the test ROM and was byte-identical to the protected save backups. Do not play or advance the game until save isolation is proven.
+## What to preserve
 
-## Files to read
+- Hardened Lua/Python 0.3.1 is authoritative; never start the upstream Lua bridge
+  or a second emulator-control listener. No arbitrary memory-write/cheat API.
+- Protected mode is default, including symmetric directory-separation and
+  protected-file hash checks. No manifest means emulator access stays locked.
+- Owner mode is an explicit exception only for the exact Squirrels ROM/save pair
+  in `config/owner-authorized.example.json`. It hashes the ROM read-only, permits
+  the normal adjacent save and records S1/S2 as OWNER-WAIVED, not passed.
+- No backup copying, deletion, generation or pruning. No access to the second
+  ROM/save. No global mGBA configuration changes in owner mode.
+- Agent starts paused; approve at most ten actions; observe after each action.
+  Failures/uncertain replies require operator review, not automatic action replay.
+- Do not commit runtime histories, maps, screenshots, game files or credentials.
 
-- `STATUS.md` — authoritative current project state.
-- `instructions/FIRERED_POKEDEX_AGENT_SPEC.md` — full goals and constraints.
-- `workspace/src/FireRedBridgeSocketServer_v0.3.lua` — intended bridge version.
-- `workspace/src/FireRedBridgeSocketServer_v0.2_fixed.lua` — version that produced the 5/8 live test.
-- `workspace/src/bridge_client.py` — Python TCP client.
-- `workspace/tests/test_bridge_battery.py` — live bridge test battery.
-- `workspace/state/battery_report.json` — historical pre-fix results.
-- `workspace/docs/` — architecture, plan, reuse audit, risk log and test protocol.
-- `workspace/tools/` — Windows helpers for opening the mGBA scripting menu.
+## Repeatable development
 
-## Local runtime recovery — only after save isolation is addressed
+Windows: `scripts/Install.ps1`, then `scripts/Test.ps1` (Python 3.12, Node 22+,
+Lua 5.3+). Cloud: `.venv/bin/python workspace/tests/run_mock_tests.py`, then
+`npm --prefix server test` and `npm --prefix server run build`. ASGI/local HTTP
+fixtures may need the executor's local-socket permission; no real model or emulator
+is required. Python compileall covers the package/API/client/tests.
 
-The ROM, emulator, saves and savestate are not stored in this repository. Do not assume any previous absolute Windows path remains valid.
+## Subsequent local verification
 
-1. Identify the intended local mGBA 0.10.5 installation and the user's legally obtained FireRed ROM.
-2. Before launching or interacting with the game, establish exactly which `.sav` path mGBA will use. The prior test-ROM sidecar matched the protected save backups; do not overwrite or reuse it. Obtain owner approval for the isolation method.
-3. Launch mGBA normally and verify the process/window.
-4. Open **Tools → Scripting**. The included `workspace/tools/mgba_menu_cmd.ps1` attempts to invoke the native menu item; inspect its output and verify the console actually opened. A GUI fallback is documented in the historical notes.
-5. In the mGBA scripting console, load the v0.3 bridge using its actual local path, for example:
+Follow the exact README startup sequence. `Prepare-mGBA.ps1` prints manual Lua
+loading commands and never launches the emulator. Fill a new local safety manifest,
+verify the actual ROM/save destinations, bridge hash and listener PID/executable.
+Use a fresh artifact directory for every battery run/application session.
 
-   ```lua
-   dofile("C:/path/to/FireRed-380/workspace/src/FireRedBridgeSocketServer_v0.3.lua")
-   ```
+Start API and Node in separate terminals, then open the dashboard. Refresh a
+read-only observation before approving a bounded sequence. To stop, pause through
+the UI and run `scripts/Stop.ps1`; require confirmed key release before closing
+services. The default provider is local Ollama, model qwen3.8:27b; no model download
+or paid key is assumed. Unsupported tools/vision must fail visibly.
 
-6. Verify that the console reports v0.3 and that the server listens on `127.0.0.1:8888`.
-7. Run the battery:
-
-   ```powershell
-   python .\workspace\tests\test_bridge_battery.py
-   ```
-
-8. Require **8/8 PASS** before implementing Phase 2.
-
-The `pre_v03_reload.mgbs` savestate was intentionally not included in this public repository. Do not attempt to restore it unless the owner supplies the local file and confirms it is the intended checkpoint.
-
-## Known historical failure modes
-
-- `python3` was not on the original machine's PATH; `python` was.
-- PowerShell `Start-Process` failed silently in the earlier session; `cmd /c start` worked then. Re-check rather than assuming.
-- mGBA's scripting menu was not exposed through the automation UI. The Win32 menu helper was written, but end-to-end success was not confirmed.
-- The emulator exited during the previous session; cause unknown.
-- v0.3 has not been loaded. Do not infer that it works.
-- The original save backups are not in Git and must stay outside the repository.
-
-## Standing constraints
-
-- Windows first; no WSL, Docker or Linux validation unless the owner approves a documented need.
-- Preserve game saves. No ROM or save downloads.
-- One action per observation; maximum ten actions per autonomous sequence.
-- Human approval for irreversible actions.
-- Verify actual results and report uncertainty honestly.
+No live emulator test was performed in this integration task. Historical v0.2
+battery remains 5/8. Current offline mocks validate code contracts only, not ROM
+alignment, real movement, physical save destinations or game progress. Keep those
+uncertainties explicit in subsequent work.

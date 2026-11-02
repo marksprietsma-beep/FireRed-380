@@ -1,0 +1,14 @@
+{
+  "owner_authorized_save_modification": true,
+  "active_rom_path_verified_in_mgba": false,
+  "active_save_path_verified_in_mgba": false,
+  "rom_path": "C:/Emu/1636 - Pokemon Fire Red (U)(Squirrels).gba",
+  "active_save": "C:/Emu/1636 - Pokemon Fire Red (U)(Squirrels).sav",
+  "host": "127.0.0.1",
+  "port": 8888,
+  "bridge_version": "0.3.1",
+  "bridge_sha256": "REPLACE_WITH_CURRENT_REVIEWED_LUA_SHA256",
+  "mgba_pid": 0,
+  "mgba_executable": "C:/REPLACE/mGBA.exe",
+  "output_dir": "C:/FireRed380-test/NEW_EMPTY_OUTPUT_DIRECTORY"
+}
