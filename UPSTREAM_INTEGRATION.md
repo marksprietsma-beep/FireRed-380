@@ -135,8 +135,8 @@ map/collision/events, text, battle/menu/Pokédex/Fly recognition, API routes, ow
 path/hash policy, waiver reporting, provider conversion/failures, local HTTP model
 requests, dashboard HTTP/WebSocket connectivity, and persistent session reload.
 
-Latest offline result: **72 Python tests** (including **18 Lua scenarios**) and
-**13 Node tests** passed, with zero failures/errors/skips. Python compileall and
+Latest offline result: **72 Python tests** (including **27 Lua scenarios**) and
+**19 Node tests** passed, with zero failures/errors/skips. Python compileall and
 all 22 application/frontend JavaScript syntax checks passed.
 
 Run `scripts/Test.ps1` after installation. Python test reports use new UUID-named

@@ -10,7 +10,7 @@
 | Node/dashboard | Local-first Ollama-compatible agent, prompts, summaries, objectives/progress, persistent sessions, local HTTP/WebSocket dashboard |
 | Supervision | Starts paused; explicit approval; ten-action budget; one action per observation; cleanup and failure pause |
 | Policies | Protected mode default; explicit Squirrels-only owner mode verifies exact path and both ROM hashes, reports S1/S2 OWNER-WAIVED, keeps S3 mandatory |
-| Offline tests | 72 Python tests (including 18 real-Lua mock scenarios), 13 Node tests; syntax/build checks passed; no failures or skips |
+| Offline tests | 72 Python tests (including 27 real-Lua mock scenarios), 19 Node tests; syntax/build checks passed; no failures or skips |
 | Live emulator | **NOT RUN**; no mGBA launch, local-computer access or ROM/save/savestate reads/modifications in this task |
 | Historical battery | v0.2 **5/8**, report preserved; no new live pass claimed |
 

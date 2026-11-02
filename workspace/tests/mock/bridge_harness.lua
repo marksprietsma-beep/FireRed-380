@@ -48,16 +48,35 @@ local function boot(options)
     end,
   }
   local function sock(server)
-    local s = {handlers = {}, input = {}, output = "", closed = false}
+    local s = {handlers = {}, input = {}, output = "", closed = false,
+               receive_calls = 0, empty_reads = 0}
     function s:add(event, cb)
       if options.socket_callback_fail then error("socket callback failed") end
       self.handlers[event] = cb; return 1
     end
     function s:listen() if options.listen_fail then return nil, "listen failed" end; return 1 end
     function s:accept() return table.remove(self.input, 1) end
-    function s:receive()
-      if #self.input > 0 then return table.remove(self.input, 1) end
-      return nil, "again"
+    function s:hasdata()
+      if self.readiness_error then return nil, self.readiness_error end
+      return #self.input > 0 or self.eof == true or self.receive_error ~= nil
+    end
+    function s:receive(maxBytes)
+      self.receive_calls = self.receive_calls + 1
+      if self.receive_error then
+        local err = self.receive_error; self.receive_error = nil
+        return nil, err
+      end
+      if #self.input > 0 then
+        local chunk = table.remove(self.input, 1)
+        if #chunk > maxBytes then
+          table.insert(self.input, 1, chunk:sub(maxBytes + 1))
+          chunk = chunk:sub(1, maxBytes)
+        end
+        return chunk
+      end
+      self.empty_reads = self.empty_reads + 1
+      if self.eof then return nil, "disconnected" end
+      return nil, options.empty_read_error or "again"
     end
     function s:send(data, i)
       assert(not self.closed, "sent after close")
@@ -122,6 +141,87 @@ test("partial requests, combined replies and partial sends", function()
   assert(b:send(c, "bridge.pi") == "")
   local reply = b:send(c, "ng<|END|>bridge.unknown<|END|>bridge.ping<|END|>")
   assert(reply == "pong<|END|><|ERROR|> unknown cmd: bridge.unknown<|END|>pong<|END|>")
+end)
+test("Windows unknown error on idle receive is avoided across version/info/ping/frame", function()
+  local b = good(boot({empty_read_error="unknown error"}))
+  b.frame = 42
+  local c = b:connect()
+  for _, command in ipairs({"bridge.version", "bridge.info", "bridge.ping", "bridge.frame"}) do
+    b:send(c, command .. "<|END|>")
+    assert(not c.closed, "an unnecessary idle read closed the connection")
+  end
+  assert(c.output:sub(-#"pong<|END|>42<|END|>") == "pong<|END|>42<|END|>")
+  assert(c.receive_calls == 4 and c.empty_reads == 0)
+  assert(#b.logs == 0 and not b.server.closed)
+end)
+test("stale received event with no readable bytes does not receive or disconnect", function()
+  local b = good(boot({empty_read_error="unknown error"})); local c = b:connect()
+  c.handlers.received()
+  assert(c.receive_calls == 0 and not c.closed and #b.logs == 0)
+end)
+test("partial command and split marker survive idle callbacks", function()
+  local b = good(boot({empty_read_error="unknown error"})); local c = b:connect()
+  b.frame = 73
+  assert(b:send(c, "bridge.fr") == "")
+  c.handlers.received() -- no new bytes: retain partial command
+  assert(b:send(c, "ame<|EN") == "")
+  c.handlers.received() -- retain partial delimiter too
+  assert(b:send(c, "D|>bridge.ping<|END|>") == "73<|END|>pong<|END|>")
+  assert(c.receive_calls == 3 and c.empty_reads == 0 and not c.closed)
+end)
+test("32-read budget leaves readable requests for the next callback", function()
+  local b = good(boot({empty_read_error="unknown error"})); local c = b:connect()
+  for _ = 1, 33 do table.insert(c.input, "bridge.ping<|END|>") end
+  c.handlers.received()
+  assert(c.receive_calls == 32 and #c.input == 1 and not c.closed)
+  assert(c.output == string.rep("pong<|END|>", 32))
+  c.handlers.received()
+  assert(c.receive_calls == 33 and c.empty_reads == 0)
+  assert(c.output == string.rep("pong<|END|>", 33))
+end)
+test("message-size limit survives a partial message spanning callback budgets", function()
+  local b = good(boot()); local c = b:connect()
+  for _ = 1, 32 do table.insert(c.input, string.rep("x", 4096)) end
+  table.insert(c.input, "x")
+  c.handlers.received()
+  assert(c.receive_calls == 32 and #c._buf == 131072 and not c.closed)
+  c.handlers.received()
+  assert(c.receive_calls == 33 and c.closed and not b.server.closed)
+  assert(b:cmd("bridge.ping") == "pong")
+end)
+test("readiness errors close only the affected client and are logged", function()
+  local b = good(boot()); local c = b:connect()
+  c.readiness_error = "unknown error"
+  c.handlers.received()
+  assert(c.closed and c.receive_calls == 0 and #b.logs == 1)
+  assert(b.logs[1]:find("unknown error", 1, true))
+  assert(not b.server.closed and b:cmd("bridge.ping") == "pong")
+end)
+test("transient readiness error preserves partial input", function()
+  local b = good(boot()); local c = b:connect()
+  b:send(c, "bridge.pi")
+  local reads = c.receive_calls
+  c.readiness_error = "again"; c.handlers.received()
+  assert(not c.closed and c.receive_calls == reads and c._buf == "bridge.pi")
+  c.readiness_error = nil
+  assert(b:send(c, "ng<|END|>") == "pong<|END|>")
+end)
+test("readiness/read race returning AGAIN preserves connection and buffer", function()
+  local b = good(boot()); local c = b:connect()
+  b:send(c, "bridge.pi")
+  c.receive_error = "again"; c.handlers.received()
+  assert(not c.closed and c._buf == "bridge.pi" and #b.logs == 0)
+  assert(b:send(c, "ng<|END|>") == "pong<|END|>")
+end)
+test("readable EOF closes only the peer; genuine receive errors are not ignored", function()
+  for _, err in ipairs({"disconnected", "connection reset", "unknown error"}) do
+    local b = good(boot()); local c = b:connect()
+    if err == "disconnected" then c.eof = true else c.receive_error = err end
+    c.handlers.received()
+    assert(c.closed and c.receive_calls == 1 and not b.server.closed)
+    assert(#b.logs == (err == "disconnected" and 0 or 1))
+    assert(b:cmd("bridge.ping") == "pong")
+  end
 end)
 test("single press exact release", function()
   local b = good(boot()); b:cmd("bridge.holdKeys,A,3")

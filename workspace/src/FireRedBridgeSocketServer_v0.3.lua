@@ -164,6 +164,18 @@ on_received = function(id)
   sock._buf = sock._buf or ""
   -- Bound work per emulator frame even if a peer continuously sends data.
   for _ = 1, 32 do
+    -- 0.10.5's hasdata() polls readability without consuming bytes. Do not
+    -- drain an idle socket until receive() fails: Windows builds can surface
+    -- that unnecessary empty read as "unknown error" rather than AGAIN.
+    -- EOF is readable too, so receive() below still handles disconnects.
+    local readable, readyErr = sock:hasdata()
+    if not readable then
+      if readyErr and readyErr ~= socket.ERRORS.AGAIN then
+        logErr("client " .. id .. " readiness error: " .. tostring(readyErr))
+        close_connection(id)
+      end
+      return -- retain partial input for the next received callback
+    end
     local chunk, err = sock:receive(4096)
     if chunk and #chunk > 0 then
       sock._buf = sock._buf .. chunk
